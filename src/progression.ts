@@ -15,14 +15,14 @@ export const SKILLS:Skill[]=[
  {id:'rebirth',name:'Renascer',branch:2,tier:3,max:1,level:5,requires:'aegis',icon:'✦',description:'Evita uma derrota e recupera 60% da vida. Recarrega ao descansar no santuário.'}
 ];
 export class Progression {
- level=1;xp=0;points=1;ranks:Partial<Record<SkillId,number>>={};
+ level=1;xp=0;points=1;ranks:Partial<Record<SkillId,number>>={};bonusHp=0;
  rank(id:SkillId){return this.ranks[id]??0}
- get needed(){return 55+this.level*30}
- get maxHp(){return 100+this.rank('vitality')*20+(this.level-1)*4}
+ get needed(){return 40+this.level*22+this.level**2*5}
+ get maxHp(){return 100+this.rank('vitality')*20+(this.level-1)*4+this.bonusHp}
  get range(){return 185+this.rank('reach')*35}
  get dps(){return (58+(this.level-1)*3)*(1+this.rank('embers')*.2)}
  gain(xp:number){this.xp+=xp;let gained=0;while(this.level<15&&this.xp>=this.needed){this.xp-=this.needed;this.level++;this.points++;gained++}if(this.level===15)this.xp=Math.min(this.xp,this.needed);return gained}
  reason(id:SkillId){const s=SKILLS.find(s=>s.id===id)!;if(this.rank(id)>=s.max)return 'Habilidade no máximo';if(this.level<s.level)return `Requer nível ${s.level}`;if(s.requires&&this.rank(s.requires)<(s.requiredRank??1))return `Requer ${SKILLS.find(k=>k.id===s.requires)!.name} ${s.requiredRank??1}`;if(this.points<=0)return 'Ganhe um nível para obter mais pontos';return ''}
  learn(id:SkillId){if(this.reason(id))return false;this.ranks[id]=this.rank(id)+1;this.points--;return true}
- load(raw:{level:number;xp:number;points:number;ranks:Partial<Record<SkillId,number>>}){this.level=Math.max(1,Math.min(15,Math.floor(raw.level)||1));this.xp=Math.max(0,Number(raw.xp)||0);this.points=Math.max(0,Math.min(40,Math.floor(raw.points)||0));for(const s of SKILLS)this.ranks[s.id]=Math.max(0,Math.min(s.max,Math.floor(raw.ranks?.[s.id]??0)))}
+ load(raw:{level:number;xp:number;points:number;ranks:Partial<Record<SkillId,number>>;bonusHp?:number}){this.level=Math.max(1,Math.min(15,Math.floor(raw.level)||1));this.xp=Math.max(0,Number(raw.xp)||0);this.points=Math.max(0,Math.min(40,Math.floor(raw.points)||0));this.bonusHp=Math.max(0,Math.min(120,Math.floor(raw.bonusHp||0)));for(const s of SKILLS)this.ranks[s.id]=Math.max(0,Math.min(s.max,Math.floor(raw.ranks?.[s.id]??0)))}
 }

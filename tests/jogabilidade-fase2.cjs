@@ -1,0 +1,25 @@
+async(page)=>{const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto('http://127.0.0.1:5200/');await page.locator('#play').waitFor({state:'visible'});await page.locator('#play').click();await page.locator('#confirm-new').click();await page.waitForTimeout(600);
+const out=await page.evaluate(()=>{const s=window.battle,r={};
+r.gates=s.world.gates.map(g=>({kind:g.kind,needs:g.needs,blocked:s.world.blocked(g.x,g.y,10)}));
+r.hazards=s.world.hazards.length;
+s.progress.ranks.inferno=1;const g0=s.world.gates[0];s.player.x=g0.x;s.player.y=g0.y;s.checkGates?.call?.(s,'inferno',g0.x,g0.y,230)??s.ability('inferno');r.gateBroken=s.cleared.has('gate-0');
+r.spores=(()=>{const b=s.spawn('venusaur',s.player.x+100,s.player.y-100,2,'t',0);b.hp=b.maxHp*.4;b.aggro=true;b.attack.turn=2;for(let i=0;i<40;i++)s.encounters.update(b,.05);const z=s.encounters.zones.length;b.destroy();s.enemies.splice(s.enemies.indexOf(b),1);return{pattern:b.attack.pattern,zones:z}});
+s.ash=1;s.player.hp=50;s.useAsh();r.ash={charges:s.ash,healing:s.ashHeal>0};
+s.guardians.add(0);s.beacons.add(2);s.lugia=true;s.lugiaActive=true;s.partner.reset();const e0=s.enemies[0];const hp0=e0.maxHp;s.lugiaRest();r.lugiaOff={active:s.lugiaActive,restored:Math.abs(e0.maxHp/ (hp0)>0&&(e0.duoBase?e0.maxHp===e0.duoBase.hp:true))};s.lugiaRest();r.lugiaOn=s.lugiaActive;
+r.patterns=(()=>{const z=s.spawn('zubat',s.player.x+120,s.player.y,11,'t',3);z.aggro=true;z.attack.turn=0;for(let i=0;i<40;i++)s.encounters.update(z,.05);const pat=z.attack.pattern;const pi=s.spawn('pidgey',s.player.x+160,s.player.y,11,'t2',3);pi.aggro=true;pi.attack.turn=0;for(let i=0;i<40;i++)s.encounters.update(pi,.05);return{zubat:pat,pidgey:pi.attack.pattern}});
+const b2=s.spawn('dragonite',s.player.x+150,s.player.y-150,11,'t3',3);b2.aggro=true;b2.rematch=true;s.bossFight={t0:s.clock,hits:0};b2.hp=5;s.kill(b2);r.record=Object.keys(s.records).length>0&&!!s.records.dragonite;
+r.tips=s.tipsSet.size>=0;
+return r});
+const fail=[];
+if(!out.gates.every(g=>g.blocked===true)&&out.gates.length!==3)fail.push('portões');
+if(!out.gateBroken)fail.push('quebra de portão');
+if(out.hazards!==8)fail.push('perigos='+out.hazards);
+if(out.spores.pattern!=='spores'||out.spores.zones<1)fail.push('esporos '+JSON.stringify(out.spores));
+if(!out.ash.charges===0&&!out.ash.healing)fail.push('cinza');
+if(out.lugiaOff.active||!out.lugiaOn)fail.push('alternância Lugia');
+if(out.patterns.zubat!=='sonic'||out.patterns.pidgey!=='gust')fail.push('padrões '+JSON.stringify(out.patterns));
+if(!out.record)fail.push('medalha de revanche');
+if(errors.length)fail.push('JS: '+errors.join('|'));
+if(fail.length)throw new Error(fail.join(' | '));
+return{ok:true,out}}

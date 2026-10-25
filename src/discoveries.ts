@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import type {BattleScene} from './scene';
-import {STAGES,CAMPS,BEACONS} from './adventure';
+import {STAGES,CAMPS,BEACONS,REGIONS} from './adventure';
 const SITES=[
  {stage:1,dx:-230,dy:120,name:'Baú das Lanternas',kind:'cache',xp:120},
  {stage:6,dx:210,dy:-130,name:'Correntes da Maré',kind:'trail',xp:180},
@@ -39,17 +39,17 @@ export class Discoveries {
   if(this.active>=0)return;
   const spec=SITES[i],site=this.sites[i];if(!spec||this.s.cleared.has('discovery-'+i))return;
   if(spec.kind==='cache'){this.reward(i);return}
-  this.active=i;this.step=0;this.remaining=spec.kind==='trail'?25:0;
+  this.active=i;this.step=0;this.remaining=spec.kind==='trail'?9:0;
   if(spec.kind==='ambush'){
-   for(let j=0;j<(this.s.difficulty==='easy'?2:3);j++){const id=`secret-${i}-${j}`;if(this.s.cleared.has(id))continue;const p=site.points[j];if(!this.s.enemies.some(e=>e.id===id)){const e=this.s.spawn(j%2?'rattata':'zubat',p.x,p.y,3,id,2);e.aggro=true}}
+   for(let j=0;j<(this.s.difficulty==='easy'?2:3);j++){const id=`secret-${i}-${j}`;if(this.s.cleared.has(id))continue;const p=site.points[j];if(!this.s.enemies.some(e=>e.id===id)){const e=this.s.spawn(j%2?'rattata':'zubat',p.x,p.y,REGIONS[2].level,id,2);e.aggro=true;e.appear=.5;if(j===0){e.scale=1.45;e.sprite.setScale(1.45);e.maxHp=Math.round(e.maxHp*2.4);e.hp=e.maxHp;e.damage=Math.round(e.damage*1.25);e.xp=Math.round(e.xp*1.6)}}}
    this.s.onNotice('NINHO DESPERTADO','Derrote os habitantes para abrir o baú.');
-  }else this.s.onNotice('3 CÍRCULOS · 25 SEGUNDOS','Atravesse os três círculos dourados em 25 segundos.');
+  }else this.s.onNotice('3 CÍRCULOS · 9 SEGUNDOS','Atravesse os três círculos dourados em 9 segundos.');
  }
  private reward(i:number){
   if(this.s.cleared.has('discovery-'+i))return;
   const spec=SITES[i],site=this.sites[i];this.s.cleared.add('discovery-'+i);this.active=-1;
   const reward=this.s.add.text(site.x,site.y-35,`+${spec.xp} XP · +30 HP${i===3?' · +1 ponto':''}`,{fontSize:'16px',color:'#ffe5a0',stroke:'#183f30',strokeThickness:4}).setOrigin(.5).setDepth(9200);this.s.tweens.add({targets:reward,y:site.y-95,alpha:0,duration:1800,onComplete:()=>reward.destroy()});this.s.gainXP(spec.xp);this.s.player.hp=Math.min(this.s.player.maxHp,this.s.player.hp+30);if(i===3)this.s.progress.points++;
-  this.s.combat.burst(site.x,site.y,35,0xffde85);this.s.audio.play('heal');this.s.onNotice(spec.name.toUpperCase(),`+${spec.xp} XP · +30 de vida${i===3?' · +1 ponto de habilidade':''}`);this.s.save();this.s.onChange();
+  this.s.combat.burst(site.x,site.y,35,0xffde85);this.s.audio.play('checkpoint');this.s.onNotice(spec.name.toUpperCase(),`+${spec.xp} XP · +30 de vida${i===3?' · +1 ponto de habilidade':''}`);this.s.save();this.s.onChange();
  }
  update(dt:number){
   const p=this.s.player,g=this.graphics;g.clear();
@@ -64,7 +64,7 @@ export class Discoveries {
    this.remaining-=dt;if(this.remaining<=0){this.cancel();return}
    const point=site.points[this.step];g.lineStyle(4,0xffde8f,.9).strokeCircle(point.x,point.y,33);g.fillStyle(0xffe2a0,.13).fillCircle(point.x,point.y,33);
    site.label.setText(`${this.step}/3 · ${Math.ceil(this.remaining)}s`).setVisible(true);
-   if(Math.hypot(p.x-point.x,p.y-point.y)<32){this.step++;this.s.audio.play('heal');if(this.step===3)this.reward(i)}
+   if(Math.hypot(p.x-point.x,p.y-point.y)<32){this.step++;this.s.audio.play('pickup');if(this.step===3)this.reward(i)}
   }else if(!this.s.enemies.some(e=>e.id.startsWith(`secret-${i}-`)))this.reward(i);
  }
  private cancel(){const i=this.active;this.reset();if(i>=0)this.sites[i].label.setText(SITES[i].name);this.s.onNotice('DESAFIO INTERROMPIDO','Volte ao baú para tentar novamente.');}

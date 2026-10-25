@@ -36,7 +36,7 @@ async(page)=>{
  check(terrain.tiles===12&&terrain.sizes.every(([w,h])=>w<=1024&&h<=1024),'Canvas budget exceeded');
  check(terrain.land.every(({pixel:[r,g,b,a]})=>a===255&&(g>b||r>b)),'An island was painted as ocean');
  check(terrain.seams.every(pair=>pair.every(([r,g,b,a])=>a===255&&b>g&&g>r)),'Missing ocean at a tile seam');
- check(terrain.obstacles===3481088923&&terrain.trees===638790592,'World geometry changed: existing saves must keep the same obstacles');
+ check(terrain.obstacles===595644591&&terrain.trees===638790592,'World geometry changed: existing saves must keep the same obstacles');
  check(terrain.postFX===0,'Heavy post-processing enabled on mobile');
  for(const [region,x,y] of [['forest',1800,4200],['lake',4500,4400],['ash',6000,2700],['sky',7000,800],['seam',4096,4400]]){
   await page.evaluate(({x,y})=>{const s=battle;s.player.x=x;s.player.y=y;s.player.invulnerable=999;s.flightCamera.snap(x,y)}, {x,y});

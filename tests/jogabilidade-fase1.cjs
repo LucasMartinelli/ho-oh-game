@@ -1,0 +1,25 @@
+async(page)=>{const errors=[];page.on('pageerror',e=>errors.push(e.message));
+await page.goto('http://127.0.0.1:5175/');await page.locator('#play').waitFor({state:'visible'});await page.locator('#play').click();await page.locator('input[name=difficulty][value=hard]').check();await page.locator('#confirm-new').click();await page.waitForTimeout(600);
+const out={};
+out.xp=await page.evaluate(()=>{const s=window.battle,r={needed1:s.progress.needed};s.progress.level=15;const e=s.spawn('caterpie',s.player.x+200,s.player.y,1,'smoke-xp',0);const before=s.progress.xp;s.kill(e);r.gained=s.progress.xp-before;r.curve67=r.needed1===67;r.fell=r.gained===Math.max(1,Math.round(30*.15));return r});
+out.objective=await page.evaluate(()=>{const s=window.battle;s.guardians.add(0);s.beacons.add(2);const o=s.objective();s.onChange();return{title:o.title,lugia:o.title.includes('Lugia'),side:document.getElementById('quest-text').textContent.includes('Lugia')}});
+out.notices=await page.evaluate(async()=>{const s=window.battle;const read=()=>document.querySelector('#notice strong').textContent;s.onNotice('A1','a',1);s.onNotice('B1','b',1);await new Promise(r=>setTimeout(r,100));const first=read();s.onNotice('C1','c',0);await new Promise(r=>setTimeout(r,2500));const second=read();await new Promise(r=>setTimeout(r,2500));const third=read();return{first,second,third}});
+out.ring=await page.evaluate(()=>{const s=window.battle;s.player.x=2200;s.player.y=4000;for(const e of s.enemies)e.aggro=false;const b=s.spawn('venusaur',2200,3800,2,'smoke-boss',0);b.aggro=true;b.attack.phase='idle';b.attack.time=0;b.attack.turn=1;for(let i=0;i<40;i++)s.encounters.update(b,.05);const bullets=s.combat.bullets.filter(x=>x.active&&x.hostile);const toPlayer=Math.atan2(s.player.y-b.y,s.player.x-b.x);const aimed=bullets.filter(x=>Math.abs(Math.atan2(Math.sin(Math.atan2(x.vy,x.vx)-toPlayer),Math.cos(Math.atan2(x.vy,x.vx)-toPlayer)))<.35);return{pattern:b.attack.pattern,count:bullets.length,aimed:aimed.length}});
+out.lastBoss=await page.evaluate(()=>{const s=window.battle;const b=s.enemies.find(e=>e.id==='smoke-boss');if(b){b.hp=Math.round(b.maxHp*.33)}s.player.invulnerable=0;s.player.dashTime=0;s.player.hp=1;s.progress.ranks.rebirth=0;s.rebirthUsed=true;s.hurt(500);return s.lastBoss});
+out.trail=await page.evaluate(()=>{const s=window.battle;s.state='playing';const site=s.discoveries.sites[1];s.player.x=site.x;s.player.y=site.y;const action=s.discoveries.interaction();s.discoveries.interact(1);return{kind:action?.kind,remaining:s.discoveries.remaining}});
+await page.screenshot({path:'output/playwright/phase1-smoke.png'});
+const fail=[];
+if(!out.xp.curve67)fail.push('curva de XP (needed(1)='+out.xp.needed1+')');
+if(!out.xp.fell)fail.push('redução de XP por nível (gained='+out.xp.gained+')');
+if(out.objective.lugia)fail.push('objetivo travou em Lugia: '+out.objective.title);
+if(!out.objective.side)fail.push('texto secundário de Lugia ausente');
+if(out.notices.first!=='O CHAMADO DA FLORESTA · SANTUÁRIO DA AURORA')fail.push('fusão de avisos iniciais: '+out.notices.first);
+if(out.notices.second!=='A1 · B1')fail.push('fila não fundiu o par: '+out.notices.second);
+if(out.notices.third!=='C1')fail.push('fila não avançou: '+out.notices.third);
+if(out.ring.pattern!=='ring')fail.push('padrão esperado ring, veio '+out.ring.pattern);
+if(out.ring.aimed<1)fail.push('anel não cobre a posição do jogador');
+if(!/ficou com \d+%/.test(out.lastBoss))fail.push('vida restante do chefe: '+out.lastBoss);
+if(out.trail.remaining!==9)fail.push('Correntes com tempo '+out.trail.remaining);
+if(errors.length)fail.push('erros JS: '+errors.join('|'));
+if(fail.length)throw new Error(fail.join(' | '));
+return{ok:true,out}}

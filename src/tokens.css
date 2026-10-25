@@ -1,0 +1,56 @@
+/* Relicário da Torre do Sino: design tokens. Documented in design-system.md; mirrored in palette.ts. */
+:root{
+ /* Primitives: ink (night lacquer) */
+ --ink-950:#140d14;--ink-900:#1e1520;--ink-800:#2b1f2c;--ink-700:#3d2d3c;--ink-600:#5a4553;--ink-500:#7a6170;--ink-400:#9a8290;
+ /* paper (washi) */
+ --paper-50:#fffaf0;--paper-100:#f7eed6;--paper-200:#ecdcb8;--paper-300:#d9c294;--paper-400:#b39a6c;--paper-500:#8c7452;--paper-600:#6b5640;
+ /* ember (torii vermilion) */
+ --ember-200:#ffc09a;--ember-300:#ff8a5c;--ember-400:#ec5a36;--ember-500:#c4362a;--ember-600:#9a2526;--ember-700:#651a22;
+ /* gold */
+ --gold-100:#fff4c2;--gold-200:#ffe07a;--gold-300:#f8c440;--gold-400:#e0962a;--gold-500:#a8661c;--gold-600:#8a5012;
+ /* leaf */
+ --leaf-200:#c8f0a0;--leaf-300:#9ee070;--leaf-400:#4cbc48;--leaf-500:#2e8a3c;--leaf-600:#22703a;--leaf-700:#18502c;
+ /* tide */
+ --tide-200:#bfe6fb;--tide-300:#68b8f0;--tide-400:#3d8ad0;--tide-500:#2a5ea8;--tide-700:#1a3a6c;--tide-900:#0f2038;
+ /* gale */
+ --gale-200:#ddd0fb;--gale-300:#b8a0f0;--gale-500:#6a4cb8;--gale-700:#3c2a74;
+
+ /* Semantic */
+ --surface-lacquer:var(--ink-900);--surface-lacquer-raised:var(--ink-800);--surface-hud:rgb(30 21 32/.94);
+ --surface-paper:var(--paper-100);--surface-paper-raised:var(--paper-50);--surface-paper-sunken:var(--paper-200);
+ --scrim:rgb(20 13 20/.72);
+ --text-on-dark:var(--paper-100);--text-on-dark-muted:var(--paper-300);--text-on-dark-accent:var(--gold-200);
+ --text-on-paper:var(--ink-900);--text-on-paper-muted:var(--paper-600);--text-on-paper-accent:var(--ember-600);
+ --line-ink:var(--ink-950);--line-gold:var(--gold-400);--line-paper:var(--paper-300);
+ --action:var(--ember-500);--action-hover:var(--ember-400);--action-light:var(--ember-300);--action-shade:var(--ember-600);--action-deep:var(--ember-700);--on-action:var(--paper-50);
+ --legend:var(--gold-300);--focus:var(--gold-200);
+ --hp-high:var(--leaf-400);--hp-mid:var(--gold-300);--hp-low:var(--ember-400);--xp:var(--tide-300);
+ --type-fire:var(--ember-400);--type-flying:var(--gale-300);--type-sacred:var(--gold-300);
+ --region-forest:var(--leaf-400);--region-tide:var(--tide-300);--region-ash:var(--ember-400);--region-sky:var(--gale-300);
+ --rainbow:linear-gradient(90deg,var(--ember-400) 0 14.28%,var(--gold-400) 0 28.57%,var(--gold-300) 0 42.85%,var(--leaf-400) 0 57.14%,var(--tide-300) 0 71.42%,var(--tide-500) 0 85.71%,var(--gale-500) 0);
+ --dither:conic-gradient(rgb(20 13 20/.4) 25%,transparent 0 50%,rgb(20 13 20/.4) 0 75%,transparent 0) 0 0/4px 4px;
+
+ /* Typography */
+ --font-display:'Pixelify Sans','Trebuchet MS',sans-serif;
+ --font-body:'DotGothic16','Trebuchet MS',sans-serif;
+ --font-label:'Silkscreen','Courier New',monospace;
+ --text-2xs:10px;--text-xs:12px;--text-sm:14px;--text-md:16px;--text-lg:20px;--text-xl:24px;--text-2xl:32px;--text-3xl:40px;
+ --leading-tight:1.15;--leading-body:1.5;--tracking-label:.08em;
+
+ /* Pixel unit, spacing, targets */
+ --px:2px;
+ --space-1:4px;--space-2:8px;--space-3:12px;--space-4:16px;--space-5:20px;--space-6:24px;--space-8:32px;
+ --tap:44px;--tap-lg:52px;
+
+ /* Frames and hard shadows */
+ --outline:0 calc(var(--px)*-1) 0 var(--line-ink),0 var(--px) 0 var(--line-ink),calc(var(--px)*-1) 0 0 var(--line-ink),var(--px) 0 0 var(--line-ink);
+ --drop:0 calc(var(--px)*3) 0 rgb(20 13 20/.45);
+ --drop-sm:0 calc(var(--px)*2) 0 rgb(20 13 20/.4);
+ --shine:rgb(255 250 240/.4);--shade:rgb(20 13 20/.22);
+
+ /* Motion */
+ --dur-instant:80ms;--dur-fast:140ms;--dur-base:220ms;--dur-slow:360ms;--ease-out:cubic-bezier(.2,.8,.2,1);
+
+ /* Layers */
+ --z-overlay:4;--z-hud:5;--z-touch:6;--z-modal:8;--z-dialog:10;--z-fullscreen:40;--z-toast:50;
+}

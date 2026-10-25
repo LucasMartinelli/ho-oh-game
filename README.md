@@ -84,7 +84,7 @@ Cada chefe alterna dois padrões e entra numa segunda fase abaixo de metade da v
 | Charizard | Leque de fogo e arrancada |
 | Dragonite | Arrancada e anel de projéteis com abertura |
 
-Há quatro descobertas opcionais: **Baú das Lanternas**, **Correntes da Maré** (três círculos em 25 segundos), **Ninho de Cinzas** (encontro de combate) e **Relíquia do Céu**. As recompensas de experiência e cura são únicas; a relíquia também concede um ponto de habilidade.
+Há quatro descobertas opcionais: **Baú das Lanternas**, **Correntes da Maré** (três círculos em 9 segundos), **Ninho de Cinzas** (encontro de combate) e **Relíquia do Céu**. As recompensas de experiência e cura são únicas; a relíquia também concede um ponto de habilidade.
 
 ## Saves
 

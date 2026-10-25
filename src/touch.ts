@@ -11,10 +11,13 @@ export function installTouchControls(scene:BattleScene){
   const length=Math.hypot(x,y);if(length>radius){x*=radius/length;y*=radius/length}
   knob.style.transform=`translate(${x}px,${y}px)`;
   if(length<9){scene.touch.x=scene.touch.y=0;return}
-  // Eight stable directions match the keyboard, including diagonals.
-  const angle=Math.round(Math.atan2(y,x)/(Math.PI/4))*Math.PI/4;
-  scene.touch.x=Math.abs(Math.cos(angle))<.01?0:Math.cos(angle);
-  scene.touch.y=Math.abs(Math.sin(angle))<.01?0:Math.sin(angle);
+  // Eight stable directions with hysteresis: switch sector only past ±30°.
+  const angle=Math.atan2(y,x);let sector=Math.round(angle/(Math.PI/4));
+  const current=Math.atan2(scene.touch.y,scene.touch.x);
+  if((scene.touch.x||scene.touch.y)&&Math.abs(Math.atan2(Math.sin(angle-current),Math.cos(angle-current)))<Math.PI/8+.14)sector=Math.round(current/(Math.PI/4));
+  const qa=sector*Math.PI/4;
+  scene.touch.x=Math.abs(Math.cos(qa))<.01?0:Math.cos(qa);
+  scene.touch.y=Math.abs(Math.sin(qa))<.01?0:Math.sin(qa);
  };
  const releaseMove=(event?:PointerEvent)=>{if(event&&event.pointerId!==moveId)return;moveId=undefined;scene.touch.x=scene.touch.y=0;knob.style.transform='translate(0px,0px)';stick.classList.remove('pressed')};
  const releaseFire=(event?:PointerEvent)=>{if(event&&event.pointerId!==fireId)return;fireId=undefined;scene.touch.fire=false;scene.touch.aimX=scene.touch.aimY=0;fire.style.removeProperty('--aim-angle');fire.classList.remove('pressed')};

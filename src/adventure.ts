@@ -1,10 +1,10 @@
 import type {Species} from './assets';
 export const HOME={x:700,y:5500};
 export const REGIONS=[
- {name:'Bosque Esmeralda',subtitle:'Entre raízes antigas',x:1800,y:4200,color:0xa7ce84,level:1,guardian:'venusaur' as Species,seal:'Raiz',pool:['caterpie','rattata','bulbasaur'] as Species[]},
- {name:'Lago das Marés',subtitle:'Onde a água guarda segredos',x:4500,y:4400,color:0x86d3df,level:3,guardian:'blastoise' as Species,seal:'Maré',pool:['squirtle','pidgey','rattata'] as Species[]},
- {name:'Vale das Cinzas',subtitle:'Sob o sopro do vulcão',x:6000,y:2700,color:0xf0ad73,level:5,guardian:'charizard' as Species,seal:'Brasa',pool:['zubat','rattata','pidgey'] as Species[]},
- {name:'Ruínas do Céu',subtitle:'O último guardião',x:7000,y:800,color:0xd0b9e4,level:7,guardian:'dragonite' as Species,seal:'Céu',pool:['zubat','bulbasaur','squirtle'] as Species[]}
+ {name:'Bosque Esmeralda',subtitle:'Entre raízes antigas',x:1800,y:4200,color:0xa7ce84,level:2,guardian:'venusaur' as Species,seal:'Raiz',pool:['caterpie','rattata','bulbasaur'] as Species[]},
+ {name:'Lago das Marés',subtitle:'Onde a água guarda segredos',x:4500,y:4400,color:0x86d3df,level:5,guardian:'blastoise' as Species,seal:'Maré',pool:['squirtle','pidgey','rattata'] as Species[]},
+ {name:'Vale das Cinzas',subtitle:'Sob o sopro do vulcão',x:6000,y:2700,color:0xf0ad73,level:8,guardian:'charizard' as Species,seal:'Brasa',pool:['zubat','rattata','pidgey'] as Species[]},
+ {name:'Ruínas do Céu',subtitle:'O último guardião',x:7000,y:800,color:0xd0b9e4,level:11,guardian:'dragonite' as Species,seal:'Céu',pool:['zubat','bulbasaur','squirtle'] as Species[]}
 ];
 // Authored journey: clearings, narrow crossings, rest areas and side routes.
 export const STAGES=[
@@ -38,7 +38,20 @@ export const BEACONS=[
  {x:5200,y:2000,region:3,name:'Memória dos Antigos'}, {x:5900,y:1400,region:3,name:'Estrela do Observatório'}
 ];
 export const FEATHERS=[{x:1600,y:4000},{x:1050,y:4170},{x:4700,y:4200},{x:3500,y:3900},{x:6250,y:2500},{x:5800,y:2900},{x:7200,y:650},{x:6750,y:650},...STAGES.slice(1).filter((_,i)=>![2,6,9,12].includes(i)).map(p=>({x:p.x+120,y:p.y+100}))];
-export interface SaveData {version:2;worldRevision?:3;difficulty?:'easy'|'hard';lugia?:boolean;camps?:number[];beacons?:number[];checkpoint?:number;x:number;y:number;hp:number;level:number;xp:number;points:number;ranks:Record<string,number>;cleared:string[];discovered:number[];feathers:number[];guardians:number[];score:number;kills:number;elapsed:number;rebirthUsed:boolean;victorySeen:boolean}
+// Optional ability-sealed caches: breaking the seal needs a learned move.
+export const GATES=[
+ {id:'gate-0',stage:14,dx:90,dy:-70,kind:'bramble' as const,needs:'inferno' as const,xp:150,name:'Espinheiro Sagrado'},
+ {id:'gate-1',stage:16,dx:-90,dy:60,kind:'rock' as const,needs:'cyclone' as const,xp:200,name:'Rocha Selada'},
+ {id:'gate-2',stage:17,dx:80,dy:80,kind:'crystal' as const,needs:'talons' as const,xp:250,name:'Cristal Antigo'}
+];
+// Telegraphed regional hazards on optional edges: spores / currents / vents / gusts.
+export const HAZARDS=[
+ {kind:'spore',stage:2,dx:150,dy:-80},{kind:'spore',stage:3,dx:-170,dy:70},
+ {kind:'current',stage:5,dx:130,dy:-50},{kind:'current',stage:7,dx:-150,dy:50},
+ {kind:'vent',stage:9,dx:140,dy:-80},{kind:'vent',stage:10,dx:-130,dy:90},
+ {kind:'gust',stage:12,dx:150,dy:-70},{kind:'gust',stage:13,dx:-160,dy:-60}
+];
+export interface SaveData {version:2;worldRevision?:3;difficulty?:'easy'|'hard';lugia?:boolean;lugiaActive?:boolean;camps?:number[];beacons?:number[];checkpoint?:number;x:number;y:number;hp:number;level:number;xp:number;points:number;ranks:Record<string,number>;cleared:string[];discovered:number[];feathers:number[];guardians:number[];score:number;kills:number;elapsed:number;rebirthUsed:boolean;victorySeen:boolean;ash?:number;cycle?:number;tips?:string[];records?:Record<string,{time:number;hits:number;medal:number}>;bonusHp?:number;rainbow?:boolean}
 const KEY='hooh-adventure-v2';
 export function readSave():SaveData|null{try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(!s||s.version!==2||!Array.isArray(s.cleared)||!Array.isArray(s.guardians)||!Array.isArray(s.discovered)||!Array.isArray(s.feathers))return null;if(s.worldRevision!==3){s.x=HOME.x;s.y=HOME.y;s.camps=[0];s.beacons=BEACONS.flatMap((b,i)=>s.guardians.includes(b.region)?[i]:[]);s.checkpoint=0}return s}catch{return null}}
 export function writeSave(s:SaveData){try{localStorage.setItem(KEY,JSON.stringify(s));return true}catch{return false}}

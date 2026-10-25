@@ -14,6 +14,12 @@ Os GIFs foram convertidos em spritesheets PNG locais, preservando suas cores e p
 
 O cenário, as interfaces, o lança-chamas e a composição musical foram produzidos para este projeto. Phaser, Vite e TypeScript conservam as respectivas licenças distribuídas com suas dependências.
 
+## Arte do mundo (tilesets e sprites)
+
+- **Kenney "Tiny Town"** (kenney.nl, CC0) — árvores, casas, cercas, portões, tenda, poço, baús, placas, torres e peças de castelo. Fonte: `scripts/pixelart/kenney-tiny-town.png` (tilemap_packed); licença em `scripts/pixelart/kenney-LICENSE.txt`.
+- **Tiny 16: Basic** de Lanea Zimmerman "Sharm" (opengameart.org/content/tiny-16-basic, CC-BY 3.0/4.0, OGA-BY 3.0) — tiles de terreno, água, tochas, fogueiras animadas, chamas espirituais, vilarejos ambulantes e monstros ambientes. Fontes: `scripts/pixelart/tiny16-basictiles.png`, `scripts/pixelart/tiny16-things.png`.
+- `scripts/build-scenery.py` fatia, recolore por bioma e compõe as estruturas; o resultado embutido fica em `src/scenery-data.json`.
+
 ## Instrumentos acústicos e trilha original
 
 A composição e o arranjo “Asas da Aurora” foram criados para este jogo. As notas usam gravações de instrumentos reais de **VSCO 2 Community Edition**, Versilian Studios / Sam Gossner, distribuídas sob **CC0**. Não se trata de uma gravação de uma orquestra executando a peça inteira: a composição foi montada a partir dessas amostras acústicas.
