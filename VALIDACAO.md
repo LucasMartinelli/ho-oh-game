@@ -257,3 +257,31 @@ Limites: verificações usam estados forçados e leitura de valores, não uma se
 - `tests/scenery-visual.cjs` passou novamente: 31 locais, nenhuma textura ausente, hashes de árvores/obstáculos idênticos e 12 chunks de 1024×1024. `tests/scenery-settlements.cjs` não encontrou interseções dos pés de casas, anexos, poços, bancos, placas, jardins, vasos, cercas ou fogueiras com os obstáculos existentes.
 - `tests/scenery-mobile.cjs` passou: retrato/paisagem, controles simultâneos, cancelamento, pausa, mapa e habilidades; capturas abertas e inspecionadas. Produção e HTML autocontido testados com início de partida, movimento/ataque, pausa/retomada e capturas, sem erros JavaScript ou referência de desenvolvimento exposta. `npm run build:standalone` aprovado; permanece o aviso de tamanho do bundle.
 - Limites: inspeção visual por capturas em Chromium e mobile emulado; sem aparelho físico e sem nova avaliação completa de balanceamento. Nenhuma alteração na geometria de colisão ou no formato dos saves.
+
+## Menu mobile e topbar
+
+- Corrigida a visibilidade da HUD no menu em telas de toque: `.touch-layout .hud` (flex, mesma especificidade, declarado depois) sobrescrevia `.is-menu .hud`; agora `body.touch-layout[data-game-state="menu"]` esconde HUD, rótulo de zona, missão, minimapa, HUD inferior, controles de toque, botão de interação, status do Lugia e barra de chefe. Padding extra de 60px do menu removido.
+- Card de abertura compacto no toque: arte 84px, logo 158px, paddings/ espaçamentos menores; medido 571px em 390×844 (antes 647px). HUD volta ao entrar na partida (verificado em Chromium emulado 390×844).
+
+## Biomas e ambientação — 25/10/2026
+
+- Identidade regional: raízes e agrupamentos de copas no bosque, juncos e piso de madeira nas marés, troncos secos e cascalho nas cinzas, pedra clara no céu. Refúgios receberam fachadas regionais e santuários receberam pisos e desenhos centrais distintos.
+- Margens dos lagos agora têm silhueta irregular dentro do obstáculo original; bordas costeiras e caminhos receberam variação cosmética. Sombras de contato dos objetos, luz discreta das lanternas e fumaça de chaminé complementam a ambientação. Água e luz usam tempo em passos para reduzir movimento subpixel.
+- `tests/scenery-visual.cjs`: 31 pontos capturados, nenhum asset ausente ou erro de JavaScript; hashes dos obstáculos (1461126806) e posições/fases das árvores (638790592) preservados. Terreno continua em 12 texturas de 1024 × 1024.
+- `tests/scenery-settlements.cjs`: nenhuma sobreposição dos pés dos móveis/construções com obstáculos existentes.
+- `tests/scenery-mobile.cjs`: 10 verificações passaram em emulação 390 × 844 e 844 × 390, incluindo movimento/fogo simultâneos, cancelamento, pausa, mapa, habilidades, tamanho dos canvases e ausência de overflow. Capturas abertas para inspeção visual.
+- Zoom mobile passou de 0,75 para 1 para preservar pixels inteiros; o campo de visão ficou menor. A verificação dos controles passou, mas não substitui avaliação humana do combate ou teste em aparelho físico.
+- `npm run build:standalone` passou (inclui TypeScript e build de produção); permanece o aviso de tamanho do bundle do Vite.
+- Smoke de produção e HTML autocontido: início de partida, movimento/ataque, pausa/retomada e captura passaram sem erros de JavaScript; `window.battle` ausente nos dois builds. Não foi um playthrough completo dos quatro capítulos.
+
+## Ho-Oh direcional e leitura do combate — 25/10/2026
+
+- Partida usa folhas locais de Mystery Dungeon (CHUNSOFT, acervo PMDCollab, commit fixado em CREDITS.md) com oito direções reais. Menu mantém a arte Black & White. Idle/Walk/Shoot preservam pixels e tempos dos originais; Shoot usa o trecho sustentado sem atrasar o dano.
+- Corpo ancorado pelos pontos originais de cada quadro, com o mesmo raio de colisão de 19. Origem do fogo transformada pelo ponto de cabeça/bico, escala, posição e inclinação efetivamente usados na renderização. A atmosfera não sobrescreve mais essa transformação depois do cálculo do fogo.
+- Removido atraso de 120 ms da orientação ao sair de uma diagonal. Pequena histerese visual evita alternância entre poses na fronteira angular; a direção real da mira permanece contínua. Durante o impulso, a pose acompanha a trajetória fixada.
+- `tests/hooh-directions.cjs`: 49 verificações aprovadas (oito direções, poses, origem/ângulo do fogo, ausência de movimento ao girar, animações, histerese, resposta ao soltar diagonal e pose do impulso).
+- `tests/hooh-directional-combat.cjs`: 10 verificações aprovadas, incluindo dano real em cada uma das oito direções e alinhamento após efeitos, com e sem efeitos suaves.
+- Regressões: `tests/control-precision.cjs` (45) e `tests/gameplay-refinements.cjs` (145) aprovados, total de 249 verificações de desenvolvimento nesta rodada; sem exceções JavaScript.
+- Capturas das oito direções reunidas e abertas para inspeção; retrato 390×844 e paisagem 844×390 também inspecionados. `npm run build` e `git diff --check` aprovados, com aviso conhecido de tamanho do bundle.
+- Produção em `vite preview`, sem `window.battle`: movimento, parada, disparo sem deslocamento e cancelamento do impulso ao pausar confirmados por coordenadas do save. Save segue versão 2/revisão de mundo 3.
+- Limites: Chromium e toque emulado; não é teste em celular físico nem avaliação humana completa de balanceamento. Importador requer Pillow e funciona offline com os arquivos originais incluídos. Sprites Pokémon continuam sujeitos aos direitos registrados em CREDITS.md.

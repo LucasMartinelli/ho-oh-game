@@ -73,6 +73,8 @@ Escolha **Fácil** ou **Difícil** ao iniciar uma nova aventura. A dificuldade f
 
 ### Combate e exploração
 
+Ho-Oh tem animações em oito direções para repouso, voo e disparo. A pose acompanha a mira durante o fogo e a trajetória durante o impulso; a saída das chamas acompanha o bico. Pequenas oscilações da mira entre duas direções não fazem o sprite piscar entre poses.
+
 Squirtle, Bulbasaur e Rattata anunciam seus ataques. A área ou direção fica definida durante o aviso: aproveite para sair do caminho.
 
 Cada chefe alterna dois padrões e entra numa segunda fase abaixo de metade da vida. Depois de atacar, o círculo verde indica recuperação: nesse período ele recebe **35% mais dano**.

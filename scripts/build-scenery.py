@@ -88,6 +88,9 @@ def ground(name, base, light, dark, stone=False):
 ground('dirt', '#b5a078', '#c3ae83', '#a48e6b')
 ground('sand', '#c7b88b', '#d4c59a', '#b6aa80')
 ground('stone', '#89978c', '#a6b0a0', '#697d76', True)
+ground('timber', '#99805b', '#b49a6c', '#77674f', True)
+ground('cinder', '#777568', '#938d79', '#5e625b', True)
+ground('marble', '#b3beb0', '#ccd0b9', '#91a69e', True)
 ground('slab', '#a1ad9a', '#bac2a9', '#7d9083', True)
 for name, base, light, dark in [('water', '#285666', '#3b7180', '#244e60'), ('water2', '#397a86', '#57979c', '#34717e')]:
     im = Image.new('RGBA', (64, 64), base)
@@ -115,6 +118,17 @@ for name, source in flora.items():
     for region, tones in enumerate(TINTS):
         emit(f'{name}{region}', tint(source, *tones), 2 if source.width > 16 else 3)
 
+
+# Bare branching silhouette for the ash lands; a whole object, never autotile edges.
+bare = Image.new('RGBA', (24, 40))
+d = ImageDraw.Draw(bare)
+d.polygon([(8,38),(10,20),(8,12),(9,3),(12,3),(12,15),(15,22),(15,34),(19,38)], fill='#484640')
+d.line([(11,29),(4,20),(3,12)], fill='#484640', width=3)
+d.line([(13,23),(20,15),(21,7)], fill='#484640', width=3)
+d.line([(11,34),(12,20),(10,9)], fill='#847965', width=2)
+d.line([(14,23),(19,16)], fill='#847965', width=1)
+for name in ['tree-dead2','tree-pine2']:
+    emit(name+'2', bare, 2)
 
 # Transparent meadow stamps: the source tile's grass is removed so its flowers
 # sit on any biome without a square patch of a different green.
@@ -170,6 +184,38 @@ def house(region):
     d.line((2, 29, 45, 29), fill='#dac39a')
     d.rectangle((33, 0, 38, 9), fill='#655e59')
     d.rectangle((32, 0, 39, 2), fill='#aaa38a')
+    if region == 0:
+        # Forest lodge: timber braces and a shaded green canopy above the door.
+        d.line((3,35,3,60), fill='#66523d', width=2)
+        d.line((44,35,44,60), fill='#66523d', width=2)
+        d.rectangle((15,41,32,44), fill='#526e48')
+        d.line((15,41,32,41), fill='#a1af71')
+    elif region == 1:
+        # Riverside shelter: boarded facade, blue awning and timber landing.
+        for yy in range(35,61,5):
+            d.line((2,yy,13,yy), fill='#a18d67')
+            d.line((34,yy,45,yy), fill='#a18d67')
+        d.polygon([(12,39),(35,39),(38,46),(9,46)], fill='#526f7b')
+        d.line((10,46,37,46), fill='#b8c8b1', width=2)
+        d.rectangle((1,61,46,63), fill='#88734f')
+    elif region == 2:
+        # Mason's workshop: low roof and a substantial stone chimney.
+        building.paste((0,0,0,0),(0,0,48,10))
+        d.line((9,10,38,10), fill='#9b8871', width=2)
+        d.rectangle((33,2,41,25), fill='#555454')
+        d.rectangle((32,2,42,5), fill='#9a9483')
+        for yy in (12,19): d.line((34,yy,40,yy), fill='#79766b')
+        d.rectangle((2,56,13,62), fill='#68675e')
+        d.rectangle((34,56,45,62), fill='#68675e')
+    else:
+        # Open-sided celestial pavilion with pale columns and a star frieze.
+        d.rectangle((2,33,45,62), fill='#536e72')
+        for xx in (3,38):
+            d.rectangle((xx,34,xx+6,61), fill='#b9c5b5')
+            d.line((xx+1,35,xx+1,60), fill='#e0dec1')
+            d.rectangle((xx-1,59,xx+7,63), fill='#8fa6a1')
+        d.rectangle((1,33,46,37), fill='#c3c9b2')
+        d.polygon([(24,19),(26,23),(30,24),(26,26),(24,30),(22,26),(18,24),(22,23)], fill='#dfd7a2')
     return tint(building, *[(0,.72,.95),(10,.62,1),(-8,.55,.85),(18,.35,1.08)][region])
 
 

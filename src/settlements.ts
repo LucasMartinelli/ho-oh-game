@@ -25,12 +25,13 @@ export function paintSettlements(scene:Phaser.Scene,c:TerrainPainter,obstacles:{
   c.beginPath();[[x-hw+10,y-32],...(i===0?[[x-26,y-32],[x-26,y-61],[x+26,y-61],[x+26,y-32]]:[]),[x+hw-10,y-32],[x+hw,y-22],[x+hw,y+28],[x+hw-14,y+42],[x-hw+14,y+42],[x-hw,y+28],[x-hw,y-22]].forEach(([px,py],j)=>j?c.lineTo(px,py):c.moveTo(px,py));c.closePath();c.clip();
   c.beginPath();c.moveTo(x-hw-1,y-70);c.lineTo(x+hw+1,y-70);c.lineTo(x+hw+1,y+50);c.lineTo(x-hw-1,y+50);c.closePath();
   for(const o of obstacles)if(Math.hypot(o.x-p.x,o.y-p.y)<260){c.moveTo(o.x/2+(o.r+10)/2,o.y/2);c.arc(o.x/2,o.y/2,(o.r+10)/2,0,Math.PI*2)}
-  c.clip('evenodd');c.fillStyle=sand;c.fillRect(x-hw,y-62,hw*2,106);
-  c.fillStyle=slab;c.fillRect(x-27,y-(i===0?60:26),54,i===0?94:60);
+  c.clip('evenodd');c.fillStyle=i===3?c.pattern(scene,'scn-cinder'):i===4?c.pattern(scene,'scn-marble'):sand;c.fillRect(x-hw,y-62,hw*2,106);
+  const paving=i===2?c.pattern(scene,'scn-timber'):i===3?c.pattern(scene,'scn-cinder'):i===4?c.pattern(scene,'scn-marble'):slab;
+  c.fillStyle=paving;c.fillRect(x-27,y-(i===0?60:26),54,i===0?94:60);
   // Each entrance leads to the shared path; courtyard furnishings have footings.
   for(const pos of [plan.house,plan.annex,plan.well,plan.bench].filter((v):v is Point=>!!v)){
    const px=x+pos[0]/2,py=y+pos[1]/2;
-   c.strokeStyle=slab;c.lineWidth=12;c.lineCap='square';c.beginPath();c.moveTo(px,py+3);c.lineTo(px,y+8);c.lineTo(x,y+8);c.stroke();
+   c.strokeStyle=paving;c.lineWidth=12;c.lineCap='square';c.beginPath();c.moveTo(px,py+3);c.lineTo(px,y+8);c.lineTo(x,y+8);c.stroke();
   }
   for(const [hx,hy] of [plan.house,plan.annex].filter((v):v is Point=>!!v)){
    c.fillStyle='#354a3b40';c.fillRect(x+hx/2-22,y+hy/2-4,48,9);
@@ -49,8 +50,11 @@ export function paintSettlements(scene:Phaser.Scene,c:TerrainPainter,obstacles:{
   const x=p.x/2,y=p.y/2;
   c.fillStyle='#3c565045';c.fillRect(x-49,y-50,102,94);
   c.fillStyle=['#a7b396','#a2b8ad','#9b9684','#bbc3b2'][i];c.fillRect(x-51,y-54,102,92);
-  c.fillStyle=slab;c.fillRect(x-48,y-51,96,86);
+  c.fillStyle=i===1?c.pattern(scene,'scn-timber'):i===2?c.pattern(scene,'scn-cinder'):i===3?c.pattern(scene,'scn-marble'):slab;c.fillRect(x-48,y-51,96,86);
   c.fillStyle=['#8fa481','#86a8a4','#8e8775','#a0b3b0'][i];c.fillRect(x-26,y-24,52,48);
+  // Regional inlays establish a focal point while keeping the arena readable.
+  c.strokeStyle=['#bdc497','#c5d4bf','#c5aa7a','#dbe1c6'][i];c.lineWidth=2;c.beginPath();
+  if(i===0){c.ellipse(x,y,15,19,0,0,Math.PI*2)}else if(i===1){for(let k=-1;k<=1;k++){c.moveTo(x-18,y+k*9);c.lineTo(x+18,y+k*9)}}else{c.moveTo(x,y-18);c.lineTo(x+18,y);c.lineTo(x,y+18);c.lineTo(x-18,y);c.closePath()}c.stroke();
   for(let k=0;k<3;k++){c.fillStyle=k%2?'#7f9386':'#bdc5ad';c.fillRect(x-23-k*3,y+38+k*3,46+k*6,3)}
  }
 }

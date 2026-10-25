@@ -266,14 +266,15 @@ kbd,.bottom-hud kbd,.abilities kbd{display:inline-flex;align-items:center;justif
 
 /* ---------- Touch layout: menus are full-height sheets ---------- */
 .touch-layout #menu{align-items:center;padding:max(var(--space-3),env(safe-area-inset-top)) max(var(--space-3),env(safe-area-inset-right)) max(var(--space-3),env(safe-area-inset-bottom)) max(var(--space-3),env(safe-area-inset-left))}
-.touch-layout .intro-card{width:min(460px,100%);max-height:100%;padding:var(--space-6) var(--space-5) var(--space-5);border:0;border-radius:0;background:var(--surface-lacquer)}
+.touch-layout .intro-card{width:min(460px,100%);max-height:100%;padding:var(--space-5) var(--space-4) var(--space-4);border:0;border-radius:0;background:var(--surface-lacquer)}
 .touch-layout .intro-card::before,.touch-layout .intro-card::after{top:14px}
-.touch-layout .intro-card .hero-art{height:112px;margin-top:0}
-.touch-layout .intro-card .hero-art .halo{width:96px;height:96px}
-.touch-layout .intro-card .hero-art #hero{transform:translate(-50%,-50%) scale(.68)}
-.touch-layout .logo-svg{width:200px}
+.touch-layout .intro-card .hero-art{height:84px;margin-top:0}
+.touch-layout .intro-card .hero-art .halo{width:74px;height:74px}
+.touch-layout .intro-card .hero-art #hero{transform:translate(-50%,-50%) scale(.52)}
+.touch-layout .logo-svg{width:158px}
 .touch-layout .intro-card .menu-description{display:none}
-.touch-layout .intro-card .menu-bottom{display:flex;flex-direction:column;align-items:stretch;gap:var(--space-5);margin-top:var(--space-5);padding-top:var(--space-5)}
+.touch-layout .intro-card .intro-meta{margin-top:var(--space-4);font-size:var(--text-xs);gap:var(--space-2) var(--space-4)}
+.touch-layout .intro-card .menu-bottom{display:flex;flex-direction:column;align-items:stretch;gap:var(--space-4);margin-top:var(--space-4);padding-top:var(--space-4)}
 .touch-layout .intro-card .save-card{padding:var(--space-3) var(--space-4) var(--space-4)}
 .touch-layout .intro-card .save-card .chapter{display:block}
 .touch-layout .intro-card .save-card h3{font-size:var(--text-lg);text-align:left}
@@ -295,7 +296,8 @@ kbd,.bottom-hud kbd,.abilities kbd{display:inline-flex;align-items:center;justif
 .touch-layout .modal .chapter{display:none}
 .touch-layout .modal .dialog-actions{margin-top:var(--space-4)}
 .touch-layout .primary{font-size:18px}
-body.touch-layout[data-game-state="menu"] #menu{padding-top:calc(max(var(--space-3),env(safe-area-inset-top)) + 60px)}
+body.touch-layout[data-game-state="menu"] #menu{padding-top:max(var(--space-3),env(safe-area-inset-top))}
+body.touch-layout[data-game-state="menu"] .hud,body.touch-layout[data-game-state="menu"] .zone-label,body.touch-layout[data-game-state="menu"] #quest,body.touch-layout[data-game-state="menu"] #minimap-button,body.touch-layout[data-game-state="menu"] .bottom-hud,body.touch-layout[data-game-state="menu"] #touch-controls,body.touch-layout[data-game-state="menu"] #interaction,body.touch-layout[data-game-state="menu"] #partner-status,body.touch-layout[data-game-state="menu"] #boss{display:none}
 body:has(#new-confirm:not([hidden])) #fullscreen{display:none}
 .touch-layout .difficulty-picker legend{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 @media (max-height:740px){.touch-layout .intro-card .intro-meta{display:none}}

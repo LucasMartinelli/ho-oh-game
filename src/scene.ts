@@ -22,7 +22,7 @@ export class BattleScene extends Phaser.Scene {
  score=0;kills=0;elapsed=0;best=0;clock=0;deathTime=0;discovered=new Set<number>();cleared=new Set<string>();feathers=new Set<number>();guardians=new Set<number>();rebirthUsed=false;victorySeen=false;region=-1;stage=-1;beacons=new Set<number>();camps=new Set<number>([0]);checkpoint=0;saveAvailable=!!readSave();saveOK=true;lastBoss='';tipsSet=new Set<string>();records:Record<string,{time:number;hits:number;medal:number}>={};cycle=0;lugiaActive=false;lugiaCooldown=0;ash=1;ashHeal=0;bossFight:{t0:number;hits:number}|null=null;hitStop=0;rainbow=false;assist={telegraph:false,guard:false,aim:true,lockAim:true};padFire=false;padAim={x:0,y:0};padMove={x:0,y:0};edge!:Phaser.GameObjects.Graphics;gateGfx!:Phaser.GameObjects.Graphics;
  keys!:Record<string,Phaser.Input.Keyboard.Key>;onReady:()=>void=()=>{};onChange:()=>void=()=>{};onNotice:(title:string,sub:string,prio?:number)=>void=()=>{};
  bars!:Phaser.GameObjects.Graphics;markers!:Phaser.GameObjects.Graphics;labels:Phaser.GameObjects.Text[]=[];decor:Actor[]=[];hearts:{sprite:Phaser.GameObjects.Image;x:number;y:number;life:number}[]=[];featherImgs:Phaser.GameObjects.Image[]=[];
- touch={x:0,y:0,fire:false,dash:false,aimX:0,aimY:0};pointerFire=false;private dashDirection={x:0,y:0};private padNeedsNeutral=true;private dashFromPad=false;private dashBuffer=0;private perfectAwarded=false;private diagonalReleaseGrace=0;private flightClock=0;private saveTimer=0;private impactTimer=0;private restCooldown=0;private lugiaHinted=false;private aimPoint?:{x:number;y:number};private hazardT:number[]=[];private padPrev:boolean[]=[];private dmgTexts:{t:Phaser.GameObjects.Text;life:number}[]=[];private lastFlip=false;private campfires:Phaser.GameObjects.Image[]=[];
+ touch={x:0,y:0,fire:false,dash:false,aimX:0,aimY:0};pointerFire=false;private dashDirection={x:0,y:0};private padNeedsNeutral=true;private dashFromPad=false;private dashBuffer=0;private perfectAwarded=false;private flightClock=0;private saveTimer=0;private impactTimer=0;private restCooldown=0;private lugiaHinted=false;private aimPoint?:{x:number;y:number};private hazardT:number[]=[];private padPrev:boolean[]=[];private dmgTexts:{t:Phaser.GameObjects.Text;life:number}[]=[];private campfires:Phaser.GameObjects.Image[]=[];
  constructor(){super('battle');try{this.best=Number(localStorage.getItem('hooh-best-v1'))||0}catch{}}
  preload(){preloadSprites(this)}
  create(){
@@ -51,7 +51,7 @@ export class BattleScene extends Phaser.Scene {
   if(saved)this.progress.load(saved);
   for(const g of this.world.gates)if(this.cleared.has(g.id))this.world.release(g.o);
   const p=this.player;Object.assign(p,{x:saved?.x??HOME.x,y:saved?.y??HOME.y,hp:saved?.hp??100,dx:-1,dy:0,invulnerable:1.5,dashCooldown:0,dashTime:0,fireCooldown:0,heat:0,overheated:false,infernoCooldown:0,cycloneCooldown:0});p.maxHp=this.progress.maxHp;p.hp=Phaser.Math.Clamp(p.hp,1,p.maxHp);if(!Number.isFinite(p.x)||!Number.isFinite(p.y)||this.world.blocked(p.x,p.y,p.r)){p.x=HOME.x;p.y=HOME.y}
-  p.sprite.setAlpha(1).setScale(p.scale).setRotation(0);p.shadow.setVisible(true);p.render(this.clock);this.flightCamera.snap(p.x,p.y);this.partner.reset();this.atmosphere.clear();
+  p.flight.reset();p.sprite.setAlpha(1).setScale(p.scale).setRotation(0);p.shadow.setVisible(true);p.render(this.clock);this.flightCamera.snap(p.x,p.y);this.partner.reset();this.atmosphere.clear();
   this.score=saved?.score??0;this.kills=saved?.kills??0;this.elapsed=saved?.elapsed??0;this.state='playing';this.region=-1;this.restCooldown=0;this.saveTimer=0;this.lastBoss='';this.audio.start();this.audio.pause(false);this.releaseInputs();this.populate();this.onChange();this.save();this.onNotice(saved?'O VOO CONTINUA':'O CHAMADO DA FLORESTA',saved?'Seu progresso foi restaurado.':'Siga as lanternas até o primeiro marco. M abre o mapa da jornada.');
  }
  private populate(){
@@ -75,7 +75,7 @@ export class BattleScene extends Phaser.Scene {
  perfect(){const p=this.player;if(this.state!=='playing'||p.dashTime<=0||this.perfectAwarded)return;this.perfectAwarded=true;p.heat=0;p.overheated=false;p.dashCooldown=Math.max(0,p.dashCooldown-1);this.combat.burst(p.x,p.y,24,0xffe08a);this.audio.play('perfect');this.tip('esquiva','ESQUIVA PERFEITA','O impulso atravessou o ataque: calor zerado e recarga reduzida.')}
  tip(id:string,title:string,sub:string){if(this.tipsSet.has(id))return;this.tipsSet.add(id);this.onNotice(title,sub,2);this.save()}
  respec(){const p=this.player;if(this.state!=='skills'||Math.hypot(p.x-HOME.x,p.y-HOME.y)>150)return false;const pts=Object.values(this.progress.ranks).reduce((a,b)=>a+(b||0),0);if(!pts)return false;this.progress.points+=pts;this.progress.ranks={};this.player.maxHp=this.progress.maxHp;this.player.hp=Math.min(this.player.hp,this.player.maxHp);this.audio.play('skill');this.onNotice('PENAS REATRIBUÍDAS',`${pts} ponto(s) devolvidos no santuário`);this.save();this.onChange();return true}
- private releaseInputs(){this.cancelDash();this.player.dashTime=0;this.dashDirection={x:0,y:0};this.padMove={x:0,y:0};this.padAim={x:0,y:0};this.padPrev=[];this.padNeedsNeutral=true;this.diagonalReleaseGrace=0;this.pointerFire=false;this.padFire=false;this.touch={x:0,y:0,fire:false,dash:false,aimX:0,aimY:0};for(const k of Object.values(this.keys))k.reset();this.audio.setFlame(false);this.flame.clear()}
+ private releaseInputs(){this.cancelDash();this.player.dashTime=0;this.dashDirection={x:0,y:0};this.padMove={x:0,y:0};this.padAim={x:0,y:0};this.padPrev=[];this.padNeedsNeutral=true;this.pointerFire=false;this.padFire=false;this.touch={x:0,y:0,fire:false,dash:false,aimX:0,aimY:0};for(const k of Object.values(this.keys))k.reset();this.audio.setFlame(false);this.flame.clear()}
  pause(){if(this.state==='playing'){this.state='paused';this.audio.pause(true);this.releaseInputs();this.save();this.audio.play('ui-open')}else if(['paused','skills','map'].includes(this.state)){this.state='playing';this.audio.pause(false);this.releaseInputs();this.audio.play('ui-close')}else return;this.onChange()}
  panel(panel:'skills'|'map'){if(this.state===panel){this.pause();return}if(!['playing','paused','skills','map'].includes(this.state))return;this.state=panel;this.audio.pause(true);this.releaseInputs();this.save();this.audio.play('ui-open');this.onChange()}
  menu(){this.save();this.state='menu';this.audio.pause(true);this.releaseInputs();this.audio.play('ui-close');this.onChange()}
@@ -143,7 +143,7 @@ export class BattleScene extends Phaser.Scene {
   const keyboardX=Number(this.keys.D.isDown||this.keys.RIGHT.isDown)-Number(this.keys.A.isDown||this.keys.LEFT.isDown),keyboardY=Number(this.keys.S.isDown||this.keys.DOWN.isDown)-Number(this.keys.W.isDown||this.keys.UP.isDown);
   // A deliberate keyboard/touch direction takes priority over incidental stick drift.
   const touchMoving=!!(this.touch.x||this.touch.y);
-  let mx=keyboardActive?keyboardX:touchMoving?this.touch.x:this.padMove.x,my=keyboardActive?keyboardY:touchMoving?this.touch.y:this.padMove.y;const len=Math.hypot(mx,my);if(len){if(len>1){mx/=len;my/=len;}if(p.dashTime<=0&&!this.pointerFire&&!this.touch.fire&&!this.padFire&&!(this.assist.lockAim&&this.keys.SPACE.isDown)){if(mx&&my){p.dx=mx/Math.hypot(mx,my);p.dy=my/Math.hypot(mx,my);this.diagonalReleaseGrace=.12}else if(this.diagonalReleaseGrace>0){this.diagonalReleaseGrace=Math.max(0,this.diagonalReleaseGrace-dt);if(this.diagonalReleaseGrace===0){p.dx=mx/Math.hypot(mx,my);p.dy=my/Math.hypot(mx,my)}}else{p.dx=mx/Math.hypot(mx,my);p.dy=my/Math.hypot(mx,my)}}}else this.diagonalReleaseGrace=0;
+  let mx=keyboardActive?keyboardX:touchMoving?this.touch.x:this.padMove.x,my=keyboardActive?keyboardY:touchMoving?this.touch.y:this.padMove.y;const len=Math.hypot(mx,my);if(len){if(len>1){mx/=len;my/=len}if(p.dashTime<=0&&!this.pointerFire&&!this.touch.fire&&!this.padFire&&!(this.assist.lockAim&&this.keys.SPACE.isDown)){p.dx=mx/Math.hypot(mx,my);p.dy=my/Math.hypot(mx,my)}}
   if(this.touch.fire){
    const hasAim=Math.hypot(this.touch.aimX,this.touch.aimY)>.1;
    const want=Math.atan2(hasAim?this.touch.aimY:p.dy,hasAim?this.touch.aimX:p.dx);
@@ -164,11 +164,12 @@ export class BattleScene extends Phaser.Scene {
   const speed=p.dashTime>0?690:210*(1+this.progress.rank('wind')*.08);this.world.move(p,(p.dashTime>0?this.dashDirection.x:mx)*speed*dt,(p.dashTime>0?this.dashDirection.y:my)*speed*dt);
   const firing=(this.keys.SPACE.isDown||this.touch.fire||this.pointerFire||this.padFire)&&!p.overheated&&p.dashTime<=0;
   p.heat=Phaser.Math.Clamp(p.heat+(firing?18:-38)*dt,0,100);if(p.heat>=100){p.overheated=true;this.tip('calor','RESPIRE','O lança-chamas precisa esfriar.')}if(p.overheated&&p.heat<=28)p.overheated=false;
-  const facingBack=p.dy<-.45,facing=p.dx>0?1:-1;
-  const mouthX=(facingBack?p.x-facing*19:p.x+facing*46)+p.ox,mouthY=(facingBack?p.y-33:p.y+11)+p.oy+Math.sin(this.flightClock*4+p.phase)*2;
-  this.flame.update(dt,this.clock,firing,mouthX,mouthY,Math.atan2(p.dy,p.dx),this.progress.range,this.world);this.audio.setFlame(firing);
-  this.flightClock+=dt*(p.dashTime>0?1.7:len>0?1.15:1);p.recoil+=((firing?1:0)-p.recoil)*(1-Math.exp(-dt*(firing?16:8)));p.ox=-p.dx*3.2*p.recoil;p.oy=-p.dy*3.2*p.recoil;
-  p.render(this.flightClock,dt,facingBack?'hooh-back':'hooh');p.sprite.setFlipX(p.dx>0).setRotation(0).setAlpha(p.invulnerable>0?(this.reducedEffects?.62:Math.sin(this.clock*35)>0?.55:1):1).setScale(p.scale);if(p.sprite.flipX!==this.lastFlip){this.lastFlip=p.sprite.flipX;p.flipSmear=.085}
+  this.flightClock+=dt*(p.dashTime>0?1.7:len>0?1.15:1);
+  p.recoil+=((firing?1:0)-p.recoil)*(1-Math.exp(-dt*(firing?16:8)));p.ox=-p.dx*2*p.recoil;p.oy=-p.dy*2*p.recoil;
+  p.renderFlight(this.flightClock,dt,mx,my,firing,this.reducedEffects,p.dashTime>0?this.dashDirection.x:p.dx,p.dashTime>0?this.dashDirection.y:p.dy);
+  p.sprite.setAlpha(p.invulnerable>0?(this.reducedEffects?.62:Math.sin(this.clock*35)>0?.55:1):1);
+  const mouth=p.flight.mouth(p);
+  this.flame.update(dt,this.clock,firing,mouth.x,mouth.y,Math.atan2(p.dy,p.dx),this.progress.range,this.world);this.audio.setFlame(firing);
   this.encounters.clear();
   for(const e of [...this.enemies]){
    if(this.flame.contains(e.x,e.y,e.r,this.world)){this.damage(e,this.progress.dps*dt,20);if(this.progress.rank('burn'))e.burn=2;if(this.impactTimer<=0)this.combat.burst(e.x,e.y,3,0xffaf46)}

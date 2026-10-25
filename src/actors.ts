@@ -1,3 +1,4 @@
+import {HoohFlight} from './hooh';
 import {freshAttack} from './encounters';
 import {HOME} from './adventure';
 import Phaser from 'phaser';
@@ -19,8 +20,11 @@ export class Actor{
  destroy(){this.sprite.destroy();this.shadow.destroy()}
 }
 export class Player extends Actor{
- dx=0;dy=-1;invulnerable=0;fireCooldown=0;dashCooldown=0;dashTime=0;fired=0;heat=0;overheated=false;infernoCooldown=0;cycloneCooldown=0;recoil=0;flipSmear=0;
- constructor(scene:Phaser.Scene){super(scene,HOME.x,HOME.y,'hooh',1.12);this.r=19}
+ dx=0;dy=-1;invulnerable=0;fireCooldown=0;dashCooldown=0;dashTime=0;fired=0;heat=0;overheated=false;infernoCooldown=0;cycloneCooldown=0;recoil=0;
+ flight=new HoohFlight();
+ constructor(scene:Phaser.Scene){super(scene,HOME.x,HOME.y,'hooh',1.7);this.r=19}
+ render(t:number,dt=.016){super.render(t,dt);this.flight.render(this,dt,0,0,false,false)}
+ renderFlight(t:number,dt:number,mx:number,my:number,firing:boolean,reduced:boolean,dx=this.dx,dy=this.dy){super.render(t,dt);this.flight.render(this,dt,mx,my,firing,reduced,dx,dy)}
 }
 export const FIRE_TYPE={weak:['caterpie','bulbasaur','venusaur'],resist:['squirtle','blastoise','charizard','dragonite']};
 export class Enemy extends Actor{

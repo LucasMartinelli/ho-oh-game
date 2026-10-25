@@ -1,0 +1,16 @@
+{
+  "repository": "https://github.com/PMDCollab/SpriteCollab",
+  "commit": "437d1ae998cb7eef12455bcc5fbb66a8bc16497c",
+  "path": "sprite/0250",
+  "credit": "CHUNSOFT",
+  "files": [
+    "AnimData.xml",
+    "credits.txt",
+    "Idle-Anim.png",
+    "Idle-Offsets.png",
+    "Walk-Anim.png",
+    "Walk-Offsets.png",
+    "Shoot-Anim.png",
+    "Shoot-Offsets.png"
+  ]
+}

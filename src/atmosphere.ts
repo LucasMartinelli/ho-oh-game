@@ -2,6 +2,7 @@ import type {BattleScene} from './scene';
 import Phaser from 'phaser';
 import type {World} from './world';
 import type {Player} from './actors';
+import {SETTLEMENT_LAYOUTS} from './settlements';
 import {seeded} from './scenery';
 import {CAMPS,STAGES,coastline} from './adventure';
 const fragment=`#ifdef GL_FRAGMENT_PRECISION_HIGH
@@ -32,12 +33,16 @@ export class AtmospherePipeline extends Phaser.Renderer.WebGL.Pipelines.PostFXPi
 }
 export class Atmosphere {
  water:Phaser.GameObjects.Graphics;air:Phaser.GameObjects.Graphics;light:Phaser.GameObjects.Graphics;aura:Phaser.GameObjects.Image;
- private pipeline?:AtmospherePipeline;private weatherMix=[1,0,0,0];private weatherTime=0;private motes:{x:number;y:number;phase:number;speed:number;size:number}[]=[];private feathers:{s:Phaser.GameObjects.Image;life:number;max:number;vx:number;vy:number}[]=[];private trailTimer=0;private bank=0;private pitch=0;private smokeAcc=0;
+ private pipeline?:AtmospherePipeline;private weatherMix=[1,0,0,0];private weatherTime=0;private motes:{x:number;y:number;phase:number;speed:number;size:number}[]=[];private feathers:{s:Phaser.GameObjects.Image;life:number;max:number;vx:number;vy:number}[]=[];private trailTimer=0;private smokeAcc=0;
  // Dynamic weather events + ambient critters.
  private event='clear';private eventAmt=0;private eventT=26;private flash=0;
  private villagers:{s:Phaser.GameObjects.Sprite;hx:number;hy:number;tx:number;ty:number;wait:number}[]=[];
+ private lanternLights:{s:Phaser.GameObjects.Image;x:number;y:number}[]=[];
+ private chimneySmoke:Phaser.GameObjects.Graphics;
  private wisps:Phaser.GameObjects.Image[]=[];
  constructor(private scene:Phaser.Scene,private world:World){
+  this.chimneySmoke=scene.add.graphics().setDepth(8600);
+  for(const lamp of world.torches){const s=scene.add.image(lamp.x,lamp.y-28,'glow').setTint(0xffd08a).setAlpha(.12).setScale(.65).setBlendMode(Phaser.BlendModes.ADD).setDepth(lamp.y+25);this.lanternLights.push({s,x:lamp.x,y:lamp.y})}
   const vrnd=seeded(778);CAMPS.forEach((cp,i)=>{const n=i===0?2:1;for(let k=0;k<n;k++){const hx=cp.x+(k?24:-24),hy=cp.y+45;const s=scene.add.sprite(hx,hy,`scn-villager${k%2}-0`).setOrigin(.5,1).setDepth(hy+1);this.villagers.push({s,hx,hy,tx:hx,ty:hy,wait:vrnd()*3})}});
   for(const st of STAGES.filter(s=>s.region===3))for(let i=0;i<3;i++){const a=vrnd()*6.28,d=vrnd()*200;this.wisps.push(scene.add.image(st.x+Math.cos(a)*d,st.y+Math.sin(a)*d,'scn-wisp').setScale(.55).setAlpha(0).setDepth(st.y+300))}
   this.water=scene.add.graphics().setDepth(-15);this.air=scene.add.graphics().setDepth(9200).setScrollFactor(0);this.light=scene.add.graphics().setDepth(8800).setScrollFactor(0).setBlendMode(Phaser.BlendModes.ADD);this.aura=scene.add.image(0,0,'glow').setBlendMode(Phaser.BlendModes.ADD).setScale(2.7).setAlpha(.12);
@@ -49,7 +54,11 @@ export class Atmosphere {
   const cam=this.scene.cameras.main,near=(x:number,y:number,r=180)=>x>cam.scrollX-r&&y>cam.scrollY-r&&x<cam.scrollX+cam.width/cam.zoom+r&&y<cam.scrollY+cam.height/cam.zoom+r;
   for(const tree of this.world.trees){const visible=near(tree.x,tree.y);tree.sprite.setVisible(visible);if(!visible)continue;tree.sprite.setAngle(0).setScale(1); // Keep the authored pixel grid crisp.
    const overlap=p.y<tree.y+12&&p.y>tree.y-tree.sprite.displayHeight&&Math.abs(p.x-tree.x)<tree.sprite.displayWidth*.5+14;tree.sprite.setAlpha(tree.sprite.alpha+((overlap?.28:1)-tree.sprite.alpha)*(1-Math.exp(-dt*10)))}
-  this.water.clear();for(const [x,y,r] of this.world.ponds){if(!near(x,y,r))continue;for(let i=0;i<16;i++){const yy=Math.sin(i*2.399)*r*.83,xx=Math.cos(i*2.399)*r*.65,max=Math.sqrt(Math.max(0,(r-10)**2-yy**2)),wave=reduced?0:Math.sin(t*.9+i)*9;const from=Math.max(-max,xx-12+wave),to=Math.min(max,xx+16+wave);this.water.lineStyle(i%3?1:2,0xc5e6ce,.13+Math.sin(t+i)*.04).lineBetween(x+from,y+yy,x+to,y+yy)}for(let i=0;i<3;i++){const radius=12+((reduced?i*11:t*9+i*23)%38);this.water.lineStyle(1,0xbeddd2,(1-radius/55)*.18).strokeEllipse(x-r*.28+i*12,y+r*.17,radius*2,radius*.65)}if(Math.hypot(p.x-x,p.y-y)<r&&Math.hypot(mx,my)>0)for(let k=0;k<2;k++){const ph=(t*1.6+k*.5)%1;this.water.lineStyle(1.5,0xd5efe2,(1-ph)*.3).strokeEllipse(p.x,p.y+16,8+ph*44,3+ph*15)}}
+  const frameTime=reduced?0:Math.floor(t*4)/4;
+  for(const lamp of this.lanternLights){lamp.s.setVisible(near(lamp.x,lamp.y,80));if(lamp.s.visible)lamp.s.setAlpha(.10+Math.sin(frameTime*2+lamp.x)*.018)}
+  this.chimneySmoke.clear();
+  if(!reduced)CAMPS.forEach((cp,i)=>{if(i===4||!near(cp.x,cp.y))return;const plan=SETTLEMENT_LAYOUTS[i];for(const pos of [plan.house,plan.annex].filter((p):p is readonly [number,number]=>!!p))for(let k=0;k<3;k++){const phase=(frameTime*.13+k/3)%1,x=Math.round((cp.x+pos[0]+23+Math.sin(phase*4+i)*6)/2)*2,y=Math.round((cp.y+pos[1]-128-phase*38)/2)*2,size=4+Math.floor(phase*3)*2;this.chimneySmoke.fillStyle(0xc4c4b1,(1-phase)*.18).fillRect(x,y,size,size)}});
+  this.water.clear();for(const [x,y,r] of this.world.ponds){if(!near(x,y,r))continue;for(let i=0;i<16;i++){const yy=Math.sin(i*2.399)*r*.65,xx=Math.cos(i*2.399)*r*.48,max=Math.sqrt(Math.max(0,(r*.72)**2-yy**2)),wave=reduced?0:Math.round(Math.sin(frameTime*.9+i)*3)*2;const from=Math.max(-max,xx-12+wave),to=Math.min(max,xx+16+wave);this.water.lineStyle(i%3?1:2,0xc5e6ce,.13+Math.sin(t+i)*.04).lineBetween(x+from,y+yy,x+to,y+yy)}for(let i=0;i<3;i++){const radius=12+((reduced?i*11:frameTime*8+i*23)%38);this.water.lineStyle(1,0xbeddd2,(1-radius/55)*.18).strokeEllipse(x-r*.28+i*12,y+r*.17,radius*2,radius*.65)}if(Math.hypot(p.x-x,p.y-y)<r&&Math.hypot(mx,my)>0)for(let k=0;k<2;k++){const ph=(t*1.6+k*.5)%1;this.water.lineStyle(1.5,0xd5efe2,(1-ph)*.3).strokeEllipse(p.x,p.y+16,8+ph*44,3+ph*15)}}
   this.air.setScale(cam.width/1120,cam.height/640);this.light.setScale(cam.width/1120,cam.height/640);this.air.clear();this.light.clear();if(!reduced){
    for(const m of this.motes){const x=((m.x+t*m.speed-cam.scrollX*.25)%1120+1120)%1120,y=((m.y+Math.sin(t*.5+m.phase)*20-cam.scrollY*.25)%640+640)%640;const leaf=m.phase<1.4;this.air.fillStyle(region===2?0xf3b574:leaf?0xc6ca86:0xffedb2,leaf?.22:.15+.14*Math.sin(t+m.phase)**2);if(leaf)this.air.fillTriangle(x,y,x+5,y+Math.sin(t+m.phase)*4,x+1,y+3);else this.air.fillCircle(x,y,m.size)}
    for(let i=0;i<4;i++){const x=100+i*340+Math.sin(t*.08+i)*35;this.light.fillStyle(region===3?0xb7d0d5:0xffdfa2,.018);this.light.fillTriangle(x-70,-40,x+90,-40,x+360,640);this.light.fillStyle(0xffe5b5,.012).fillTriangle(x+90,-40,x+360,640,x+430,640)}
@@ -67,9 +76,7 @@ export class Atmosphere {
   if(this.pipeline){const palette=region===2?[1.08,.97,.88]:region===3?[.88,.96,1.07]:region===1?[.9,1.0,1.055]:[1.025,1.035,.96];const colors=region===2?[.57,.43,.34]:region===3?[.57,.65,.76]:region===1?[.64,.75,.79]:[.67,.76,.68];for(let i=0;i<3;i++){this.pipeline.tint[i]+=(palette[i]-this.pipeline.tint[i])*(1-Math.exp(-dt*.8));this.pipeline.fogColor[i]+=(colors[i]-this.pipeline.fogColor[i])*(1-Math.exp(-dt*.7))}const target=reduced?.06:region===3?.26:region===1?.18:region===2?.17:.12;this.pipeline.density+=(target-this.pipeline.density)*(1-Math.exp(-dt*.7));this.pipeline.time=this.weatherTime;this.pipeline.scroll=[cam.scrollX/640*.45,cam.scrollY/640*.45];this.pipeline.hero=[(p.x-cam.scrollX)*cam.zoom/cam.width,1-(p.y-cam.scrollY)*cam.zoom/cam.height]}
   const moving=Math.hypot(mx,my)>0,altitude=Math.sin(t*4.5)*3;
   this.aura.setPosition(p.x,p.y+7).setDepth(p.y-2).setAlpha(p.hp>0?.07+(p.heat/100)*.055:0).setTint(p.hp>0&&p.hp/p.maxHp<.3?0xff8a6a:0xffffff);
-  this.bank+=((moving?mx*.065:0)-this.bank)*(1-Math.exp(-dt*8));const pitchT=(moving?my*.09:0)*(p.sprite.flipX?-1:1);this.pitch+=(pitchT-this.pitch)*(1-Math.exp(-dt*9));
-  p.flipSmear=Math.max(0,p.flipSmear-dt);const smear=1-(p.flipSmear/.085)*.22;
-  if(p.hp>0){p.sprite.setRotation(reduced?0:this.bank+this.pitch).setScale(p.scale*(p.dashTime>0?1.06:1)*smear,p.scale*(p.dashTime>0?.95:1)*(1+(1-smear)*.8));p.shadow.setScale(1-altitude*.015,.85-altitude*.01).setAlpha(.22)}
+  if(p.hp>0)p.shadow.setScale(1-altitude*.015,.85-altitude*.01).setAlpha(.22);
   if(p.overheated&&!reduced){this.smokeAcc+=dt*6;while(this.smokeAcc>=1){this.smokeAcc--;const s=this.scene.add.image(p.x+(Math.random()-.5)*14,p.y-16,'flame').setTint(0x6f7a78).setAlpha(.5).setScale(.35).setDepth(p.y+120);this.scene.tweens.add({targets:s,y:s.y-46,alpha:0,scale:.9,duration:700,onComplete:()=>s.destroy()})}}else this.smokeAcc=0;
   this.trailTimer-=dt;if(!reduced&&p.hp>0&&this.trailTimer<=0&&(p.dashTime>0||moving)){this.trailTimer=p.dashTime>0?.035:.28;if(p.dashTime>0){const g=this.scene.add.image(p.x,p.y,p.sprite.texture.key,p.sprite.frame.name).setAlpha(.3).setTint(0xffd9a0).setScale(p.sprite.scaleX,p.sprite.scaleY).setFlipX(p.sprite.flipX).setRotation(p.sprite.rotation).setDepth(p.y+48);this.scene.tweens.add({targets:g,alpha:0,duration:220,onComplete:()=>g.destroy()})}if(this.feathers.length<28){const s=this.scene.add.image(p.x-p.dx*25,p.y-p.dy*20+10,'gold-feather').setScale(p.dashTime>0?.45:.28).setAlpha(.6).setDepth(p.y-3).setAngle(t*45);if((this.scene as BattleScene).rainbow)s.setTint([0xff9e9e,0xffd88a,0xa8e6b0,0x9fc8ff,0xd0a8f0][this.feathers.length%5]);const life=p.dashTime>0?.6:.9;this.feathers.push({s,life,max:life,vx:-p.dx*25,vy:18-p.dy*15})}}
   for(let i=this.feathers.length-1;i>=0;i--){const f=this.feathers[i];f.life-=dt;f.s.x+=f.vx*dt;f.s.y+=f.vy*dt;f.s.angle+=dt*80;f.s.setAlpha(Math.max(0,f.life/f.max*.5));if(f.life<=0){f.s.destroy();this.feathers.splice(i,1)}}
@@ -93,7 +100,7 @@ export class Atmosphere {
   // Villagers wander around camps.
   for(const v of this.villagers){const s=v.s,d=Math.hypot(v.tx-s.x,v.ty-s.y);if(d<4){v.wait-=dt;if(v.wait<=0){v.wait=1.5+Math.random()*3;v.tx=v.hx+(Math.random()-.5)*18;v.ty=v.hy+(Math.random()-.5)*8}}else{const sp=34*dt;s.x+=(v.tx-s.x)/d*sp;s.y+=(v.ty-s.y)/d*sp;s.setFlipX(v.tx<s.x);s.setFrame(Math.floor(t*6)%2);s.setDepth(s.y+1)}}
   // Shore foam: animated arcs along the nearest island edge, only when coast is near.
-  if(!reduced){const st=this.world.stageAt(p.x,p.y);if(Math.abs(Math.hypot(p.x-st.x,p.y-st.y)-Math.max(st.rx,st.ry))<420)for(let i=0;i<40;i++){const a=i*.157+t*.35,f=coastline(st.x,st.y,a),ex=st.x+Math.cos(a)*st.rx*f+Math.sin(t*1.6+i*2.4)*9,ey=st.y+Math.sin(a)*st.ry*f;if(near(ex,ey,40)){const ph=(t*1.1+i*.37)%1;this.water.lineStyle(1.5,0xeaf6ee,(1-ph)*.16).strokeEllipse(ex,ey,10+ph*26,4+ph*10)}}}
+  if(!reduced){const st=this.world.stageAt(p.x,p.y);if(Math.abs(Math.hypot(p.x-st.x,p.y-st.y)-Math.max(st.rx,st.ry))<420)for(let i=0;i<40;i++){const a=i*.157+t*.35,f=coastline(st.x,st.y,a),ex=st.x+Math.cos(a)*st.rx*f+Math.sin(t*1.6+i*2.4)*9,ey=st.y+Math.sin(a)*st.ry*f;if(near(ex,ey,40)&&!this.world.onLand(ex,ey,-3)){const ph=(t*1.1+i*.37)%1;this.water.lineStyle(1.5,0xeaf6ee,(1-ph)*.16).strokeEllipse(ex,ey,10+ph*26,4+ph*10)}}}
  }
- clear(){for(const f of this.feathers)f.s.destroy();this.feathers=[];this.bank=0;this.pitch=0;this.smokeAcc=0}
+ clear(){for(const f of this.feathers)f.s.destroy();this.feathers=[];this.smokeAcc=0}
 }

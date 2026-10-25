@@ -1,9 +1,11 @@
 import Phaser from 'phaser';
+import {preloadHooh} from './hooh';
 import sprites from './sprite-data.json';
 import scenery from './scenery-data.json';
 export type Species = 'hooh'|'lugia'|'caterpie'|'rattata'|'pidgey'|'zubat'|'bulbasaur'|'squirtle'|'charizard'|'blastoise'|'venusaur'|'dragonite';
 export const SPRITES=sprites;
 export function preloadSprites(scene:Phaser.Scene){
+ preloadHooh(scene);
  for(const [key,s] of Object.entries(sprites))scene.load.spritesheet(key,s.data,{frameWidth:s.size,frameHeight:s.size});
  for(const [key,data] of Object.entries(scenery.images))scene.load.image('scn-'+key,data);
  for(const [key,s] of Object.entries(scenery.sheets))scene.load.spritesheet('scn-'+key,s.data,{frameWidth:s.fw,frameHeight:s.fh});

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import {HOME,REGIONS,FEATHERS,STAGES,CONNECTIONS,CAMPS,BEACONS,GATES,HAZARDS,coastline} from './adventure';
 import {makeScenery,seeded} from './scenery';
+import {paintBiomes} from './biomes';
 import {TerrainPainter} from './terrain';
 import {paintSettlements,SETTLEMENT_LAYOUTS} from './settlements';
 export const WORLD={w:8192,h:6144};
@@ -19,7 +20,7 @@ export class World{
   const img=(k:string)=>scene.textures.get(k).getSourceImage() as CanvasImageSource;
   c.fillStyle=c.pattern(scene,'scn-water');c.fillRect(0,0,w,h);
   for(let i=0;i<14000;i++){const x=rand()*w,y=rand()*h;c.fillStyle=i%2?'#50878a20':'#0f2d3a30';c.fillRect(x,y,9+rand()*18,1)}
-  const landPath=(expand:number)=>{c.beginPath();for(const p of STAGES){for(let k=0;k<=96;k++){const a=k*Math.PI/48,f=coastline(p.x,p.y,a),x=(p.x+Math.cos(a)*(p.rx+expand)*f)/2,y=(p.y+Math.sin(a)*(p.ry+expand)*f)/2;k?c.lineTo(x,y):c.moveTo(x,y)}c.closePath()}for(const [ax,ay,bx,by] of this.paths){const a=Math.atan2(by-ay,bx-ax),nx=Math.sin(a)*(85+expand)/2,ny=-Math.cos(a)*(85+expand)/2;c.moveTo(ax/2+nx,ay/2+ny);c.lineTo(bx/2+nx,by/2+ny);c.lineTo(bx/2-nx,by/2-ny);c.lineTo(ax/2-nx,ay/2-ny);c.closePath()}};
+  const landPath=(expand:number)=>{c.beginPath();for(const p of STAGES){for(let k=0;k<=96;k++){const a=k*Math.PI/48,f=coastline(p.x,p.y,a)+(expand>0?Math.sin(a*13+p.x)*.008+Math.cos(a*9+p.y)*.008:0),x=(p.x+Math.cos(a)*(p.rx+expand)*f)/2,y=(p.y+Math.sin(a)*(p.ry+expand)*f)/2;k?c.lineTo(x,y):c.moveTo(x,y)}c.closePath()}for(const [ax,ay,bx,by] of this.paths){const a=Math.atan2(by-ay,bx-ax),nx=Math.sin(a)*(85+expand)/2,ny=-Math.cos(a)*(85+expand)/2;c.moveTo(ax/2+nx,ay/2+ny);c.lineTo(bx/2+nx,by/2+ny);c.lineTo(bx/2-nx,by/2-ny);c.lineTo(ax/2-nx,ay/2-ny);c.closePath()}};
   for(const [expand,color] of [[55,'#326b77'],[32,'#578d8c'],[13,'#c3b68a'],[0,'#536b45']] as const){landPath(expand);c.fillStyle=color;c.fill()}
   c.save();landPath(0);c.clip();
   // Grass tiles per biome, hashed per cell so the random stream is untouched.
@@ -32,7 +33,17 @@ export class World{
   for(const width of [70,58,46]){c.strokeStyle=width===70?'#526e4d':width===58?sandPat:dirtPat;c.lineWidth=width/2;c.lineJoin='round';c.lineCap='round';for(const [ax,ay,bx,by] of this.paths){c.beginPath();c.moveTo(ax/2,ay/2);c.lineTo(bx/2,by/2);c.stroke()}}
   const ponds=this.ponds;
   const pondPat=c.pattern(scene,'scn-water2');
-  for(const [x,y,r] of ponds){this.obstacles.push({x,y,r});for(const [rr,col] of [[r+8,'#354e48'],[r+4,'#b8c69b'],[r,'#397f91'],[r-13,'#499bad']] as [number,string][]){c.fillStyle=col;c.beginPath();c.ellipse(x/2,y/2,rr/2,rr/2,0,0,Math.PI*2);c.fill()}c.fillStyle=pondPat;c.beginPath();for(let k=0;k<=64;k++){const a=k*Math.PI/32,rr=r/2*(.94+.025*Math.sin(a*5)+.02*Math.cos(a*7));const px=x/2+Math.cos(a)*rr,py=y/2+Math.sin(a)*rr;k?c.lineTo(px,py):c.moveTo(px,py)}c.closePath();c.fill();const water=c.createRadialGradient(x/2-r*.12,y/2-r*.16,5,x/2,y/2,r/2);water.addColorStop(0,'#285d7160');water.addColorStop(.6,'#397f8d40');water.addColorStop(.88,'#64a9a420');water.addColorStop(1,'#91bca000');c.fillStyle=water;c.beginPath();for(let k=0;k<=64;k++){const a=k*Math.PI/32,rr=r/2*(.94+.025*Math.sin(a*5)+.02*Math.cos(a*7));const px=x/2+Math.cos(a)*rr,py=y/2+Math.sin(a)*rr;k?c.lineTo(px,py):c.moveTo(px,py)}c.closePath();c.fill();for(let i=0;i<40;i++){const a=rand()*6.28,d=rand()*(r-20)/2;c.fillStyle='#91c5bf70';c.fillRect(x/2+Math.cos(a)*d,y/2+Math.sin(a)*d,6+rand()*10,1)}}
+  for(const [x,y,r] of ponds){
+   this.obstacles.push({x,y,r});
+   // The irregular shoreline stays inside the saved circular obstacle. A dry
+   // bank covers the remainder, so water never extends into walkable terrain.
+   const shape=(radius:number)=>{c.beginPath();for(let k=0;k<=64;k++){const a=k*Math.PI/32,f=.86+.075*Math.sin(a*3)+.035*Math.cos(a*7),px=Math.round(x/2+Math.cos(a)*radius/2*f),py=Math.round(y/2+Math.sin(a)*radius/2*f);k?c.lineTo(px,py):c.moveTo(px,py)}c.closePath()};
+   for(const [rr,col] of [[r+12,'#597b60'],[r+6,'#b0b18b'],[r,'#74a69a']] as const){shape(rr);c.fillStyle=col;c.fill()}
+   shape(r-7);c.fillStyle=pondPat;c.fill();
+   c.save();shape(r-12);c.clip();
+   for(let i=0;i<40;i++){const a=rand()*6.28,d=rand()*(r-20)/2;c.fillStyle='#91c5bf45';c.fillRect(x/2+Math.cos(a)*d,y/2+Math.sin(a)*d,6+rand()*10,1)}
+   c.restore();
+  }
   for(let i=0;i<4700;i++){const x=50+rand()*(WORLD.w-100),y=50+rand()*(WORLD.h-100);if(!this.onLand(x,y,75)||clear(x,y,24)||this.obstacles.some(o=>Math.hypot(o.x-x,o.y-y)<(o.sr??o.r)+42))continue;const region=this.regionAt(x,y);if(i%5===0||region===2&&i%3===0){this.rock(c,x/2,y/2,region);this.obstacles.push({x,y,r:15,sr:19})}else{this.tree(c,x/2,y/2,rand,region);this.obstacles.push({x,y:y+15,r:17,sr:21})}}
   for(let i=0;i<8000;i++){const x=rand()*w|0,y=rand()*h|0;if(clear(x*2,y*2,-35)||this.obstacles.some(o=>Math.hypot(o.x/2-x,o.y/2-y)<(o.sr??o.r)/2+4))continue;const reg=this.regionAt(x*2,y*2);c.fillStyle=i%7===0?['#d6d99c','#a8ced4','#e3ad72','#c6b6d9'][reg]:['#82925c','#73a18c','#a48c67','#99a1a4'][reg];c.fillRect(x,y,2,3);if(i%7)c.fillRect(x-2,y-1,1,2)}
   // Small, clustered tile stamps give each clearing an understory. This random
@@ -51,7 +62,7 @@ export class World{
   }
   const dressing=seeded(8441);
   for(let i=0;i<8000;i++){const x=dressing()*w,y=dressing()*h;const path=this.paths.some(([ax,ay,bx,by])=>this.distanceSegment(x*2,y*2,ax,ay,bx,by)<22);if(path){c.fillStyle=i%2?'#6b634530':'#f0deac35';c.fillRect(x,y,1+dressing()*2,1)}else if(i%4===0){c.fillStyle='#c6b67538';c.fillRect(x,y,2,1);c.fillStyle='#293e2730';c.fillRect(x+1,y+1,3,1)}}
-  for(const [x,y,r] of ponds){const random=seeded(x+y);for(let i=0;i<30;i++){const a=random()*6.28,px=(x+Math.cos(a)*(r+6))/2,py=(y+Math.sin(a)*(r+6))/2;c.strokeStyle='#345a40';c.lineWidth=1;c.beginPath();c.moveTo(px,py);c.lineTo(px-2,py-7-random()*5);c.moveTo(px,py);c.lineTo(px+3,py-5);c.stroke();c.fillStyle='#b4a36c';c.fillRect(px-3,py-10,2,3)}}
+  paintBiomes(c,this);
   // Timber spans, shrine architecture and illuminated trail markers.
   for(const [ax,ay,bx,by] of this.paths){const length=Math.hypot(bx-ax,by-ay),angle=Math.atan2(by-ay,bx-ax);for(let d=20;d<length;d+=18){const x=ax+(bx-ax)*d/length,y=ay+(by-ay)*d/length;if(STAGES.some(p=>Math.hypot((x-p.x)/p.rx,(y-p.y)/p.ry)<1))continue;c.save();c.translate(x/2,y/2);c.rotate(angle);c.fillStyle='#3a3029';c.fillRect(-5,-43,10,86);c.fillStyle=d%36===20?'#aa8551':'#907447';c.fillRect(-4,-39,8,78);c.fillStyle='#d7b87b';c.fillRect(-4,-43,8,3);c.fillRect(-4,40,8,3);c.restore()}}
   // Stone plinths under the beacon monuments (the monuments themselves are sprites).
@@ -70,7 +81,7 @@ export class World{
   for(const g of GATES){const s=STAGES[g.stage],p=this.resolve(s.x+g.dx,s.y+g.dy,38);if(p)this.gates.push({...g,x:p.x,y:p.y,r:34,o:this.addObstacle({x:p.x,y:p.y,r:34})})}
   for(const h of HAZARDS){const s=STAGES[h.stage],p=this.resolve(s.x+h.dx,s.y+h.dy,30);if(p){const cx=s.x-p.x,cy=s.y-p.y,d=Math.hypot(cx,cy)||1;this.hazards.push({kind:h.kind,x:p.x,y:p.y,region:s.region,dir:{x:cx/d,y:cy/d}})}}
   // ---- Sprite structures (Kenney Tiny Town CC0 / Tiny 16 CC-BY, see CREDITS.md)
-  const deco=(key:string,x:number,y:number,oy=0)=>scene.add.image(x,y,key).setOrigin(.5,1).setDepth(y+oy);
+  const deco=(key:string,x:number,y:number,oy=0)=>{const sprite=scene.add.image(x,y,key).setOrigin(.5,1).setDepth(y+oy);scene.add.ellipse(x+3,y-2,Math.min(sprite.width*.75,62),8,0x263c34,.18).setDepth(-12);return sprite};
   deco('scn-home-shrine',HOME.x,HOME.y-114);
   REGIONS.forEach((r,i)=>{deco(`scn-shrine-${i}`,r.x,r.y-70);for(const side of [-1,1]){deco('scn-ruin-col',r.x+side*90,r.y+12);deco('scn-pot',r.x+side*78,r.y-72)}});
   const BSPR=['scn-beacon-lantern','scn-beacon-root','scn-lighthouse','scn-beacon-fountain','scn-beacon-base','scn-beacon-base','scn-beacon-obelisk','scn-beacon-star'];
@@ -108,7 +119,9 @@ export class World{
   c.fillStyle='#152d2240';c.beginPath();c.ellipse(x+5,y+6,17,7,-.28,0,6.28);c.fill();
   const random=seeded(Math.floor(x*713+y*311));const variant=Math.floor(random()*4);
   const species=['tree-round','tree-oak','tree-pine','tree-round','tree-pine','tree-round','tree-round','tree-pine','tree-dead','tree-dead2','tree-pine2','tree-dead','tree-mush','tree-pine','tree-round','tree-oak'];
-  const key=`scn-${species[region*4+variant]}${region}`;
+  const grove=Math.sin(x*.009)+Math.cos(y*.011);
+  const speciesName=region===0&&grove>.15?'tree-oak':region===2&&grove>-.4?'tree-dead2':region===3&&grove>.2?'tree-oak':species[region*4+variant];
+  const key=`scn-${speciesName}${region}`;
   const sprite=this.scene.add.image(x*2,y*2+18,key).setOrigin(.5,.92).setScale(1).setDepth(y*2+28);
   this.trees.push({sprite,x:x*2,y:y*2+18,phase:random()*6.28});
  }

@@ -1,10 +1,10 @@
 # Sprites e créditos
 
-Os personagens agora usam os sprites animados das versões **Pokémon Black & White**, disponibilizados no acervo público **PokéAPI/sprites**:
+Os adversários, Lugia e a arte de menu do Ho-Oh usam os sprites animados das versões **Pokémon Black & White**, disponibilizados no acervo público **PokéAPI/sprites**:
 
 - Repositório: https://github.com/PokeAPI/sprites
 - Diretório de origem: `sprites/pokemon/versions/generation-v/black-white/animated/`
-- Ho-Oh também usa sua animação traseira ao voar para o norte.
+- A animação traseira antiga do Ho-Oh permanece no acervo; a partida usa agora o conjunto direcional descrito abaixo.
 - `public/sprites/sources.json` registra o commit exato e a URL de cada arquivo.
 - `public/sprites/LICENCE.txt` preserva a declaração de direitos do acervo.
 
@@ -48,3 +48,16 @@ A arquitetura e a vegetação reaproveitam o [Tiny Town de Kenney](https://kenne
 Os personagens ambientais e as fogueiras continuam usando Tiny 16 de Sharm/Lanea Zimmerman, com os créditos e licenças acima. Cada quadro de fogo agora inclui as quatro células do desenho original, sem cortar a chama ou o pedestal.
 
 Os pequenos tiles repetíveis de grama, terra, areia, piso e água foram criados para o projeto em `scripts/build-scenery.py`, com paletas por bioma. O gerador requer Python + Pillow; todos os PNGs resultantes ficam incorporados em `src/scenery-data.json`, sem requisições externas durante o jogo.
+
+## Ho-Oh em oito direções
+
+O Ho-Oh durante a partida usa os sprites de Pokémon Mystery Dungeon preservados em [PMDCollab/SpriteCollab, pasta 0250](https://github.com/PMDCollab/SpriteCollab/tree/437d1ae998cb7eef12455bcc5fbb66a8bc16497c/sprite/0250). O registro original `credits.txt` atribui essas animações a **CHUNSOFT**. Commit fixado: `437d1ae998cb7eef12455bcc5fbb66a8bc16497c`.
+
+- Originais sem alterações de pixels: `public/sprites/hooh-directions/`, incluindo folhas Idle/Walk/Shoot, pontos de ancoragem, XML de tempos e créditos.
+- Conversão local: `scripts/import-hooh-directions.py` (Python + Pillow), produzindo `src/hooh-data.json` incorporado ao jogo. Nenhuma requisição externa durante a partida.
+- Integração: escala de apresentação, oito direções, seleção da parte sustentada de Shoot, ancoragem do corpo e origem do fogo baseada nos pontos de cabeça de cada quadro. Não são desenhos novos feitos para este projeto.
+- O README original do acervo está preservado em `README-source.md`: suas contribuições são oferecidas sob CC BY-NC 4.0, com crédito e uso não comercial. Os sprites originais de Pokémon/Chunsoft continuam sujeitos aos direitos dos respectivos titulares; não são declarados CC0 nem licenciados comercialmente por este projeto.
+
+### Identidade dos biomas e refúgios
+
+As fachadas regionais (cabana, abrigo ribeirinho, oficina e pavilhão), árvores secas completas e pisos de madeira, cinza e pedra clara foram compostos localmente em `scripts/build-scenery.py`. As fachadas adaptam o Tiny Town CC0 já creditado; os troncos secos e acabamentos adicionais são desenhos do projeto. Raízes, vegetação ribeirinha, fragmentos de pedra, margens e desgaste dos caminhos são detalhes procedurais locais, sem novos recursos externos.
