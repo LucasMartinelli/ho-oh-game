@@ -1,0 +1,11 @@
+async(page)=>{
+ const passed=[];const assert=(v,s)=>{if(!v)throw Error(s);passed.push(s)};await page.setViewportSize({width:1280,height:900});await page.goto('http://127.0.0.1:5174/');await page.waitForFunction(()=>window.battle?.player);
+ await page.evaluate(()=>{window.battle.state='menu';localStorage.setItem('hooh-adventure-v2',JSON.stringify({version:2,x:3100,y:650,hp:80,level:6,xp:30,points:3,ranks:{embers:2,reach:1},cleared:['wild-0-0'],discovered:[0,1],feathers:[0,2],guardians:[0,1],score:1234,kills:8,elapsed:300,rebirthUsed:false,victorySeen:false}))});await page.reload();await page.locator('#continue').click();
+ assert(await page.evaluate(()=>{const s=window.battle;return s.player.x===700&&s.player.y===5500&&s.progress.level===6&&s.progress.rank('embers')===2&&s.guardians.size===2&&s.beacons.size===4&&s.feathers.size===2&&s.score===1234}),'Migração preserva nível, habilidades, selos, XP e recompensas');
+ assert(await page.evaluate(()=>!window.battle.world.blocked(window.battle.player.x,window.battle.player.y,19)),'Migração posiciona em terreno seguro');
+ await page.evaluate(()=>{const s=window.battle;s.player.x=5200;s.player.y=2000;s.player.invulnerable=999;s.flightCamera.snap(s.player.x,s.player.y)});await page.waitForTimeout(4000);await page.screenshot({path:'output/playwright/journey-ruins.png',fullPage:true});
+ const collision=await page.evaluate(()=>{const w=window.battle.world;return [15,30,120].every(hz=>{const actor={x:5200,y:2000,r:19};for(let i=0;i<hz*3;i++)w.move(actor,690/hz,0);return !w.blocked(actor.x,actor.y,actor.r)&&actor.x<7000})});assert(collision,'Costa bloqueia passagem mesmo com impulso e passos longos');
+ await page.evaluate(()=>{const s=window.battle;s.player.x=5500;s.player.y=2340;s.player.invulnerable=999;s.flightCamera.snap(s.player.x,s.player.y)});await page.waitForTimeout(1000);await page.screenshot({path:'output/playwright/journey-crossing.png',fullPage:true});
+ const fps=await page.evaluate(()=>window.battle.game.loop.actualFps);await page.evaluate(()=>window.battle.save());await page.reload();await page.locator('#continue').click();assert(await page.evaluate(()=>window.battle.progress.level===6&&window.battle.guardians.size===2),'Novo salvamento mantém a migração após recarregar');
+ return{passed,fps};
+}

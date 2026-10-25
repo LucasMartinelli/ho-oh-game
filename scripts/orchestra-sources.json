@@ -1,0 +1,87 @@
+[
+  {
+    "kind": "strings",
+    "path": "Strings/Violin Section/susVib/VlnEns_susVib_C4_v1.wav",
+    "note": "C4"
+  },
+  {
+    "kind": "cello",
+    "path": "Strings/Cello Section/susvib/susvib_C1_v1_1.wav",
+    "note": "C1"
+  },
+  {
+    "kind": "cello",
+    "path": "Strings/Cello Section/susvib/susvib_G1_v1_1.wav",
+    "note": "G1"
+  },
+  {
+    "kind": "cello",
+    "path": "Strings/Cello Section/susvib/susvib_C3_v1_1.wav",
+    "note": "C3"
+  },
+  {
+    "kind": "harp",
+    "path": "Strings/Harp/KSHarp_C3_mf.wav",
+    "note": "C3"
+  },
+  {
+    "kind": "harp",
+    "path": "Strings/Harp/KSHarp_G3_mf.wav",
+    "note": "G3"
+  },
+  {
+    "kind": "harp",
+    "path": "Strings/Harp/KSHarp_C5_mf.wav",
+    "note": "C5"
+  },
+  {
+    "kind": "horn",
+    "path": "Brass/F Horn/sus/MOHorn_sus_C3_v2_1.wav",
+    "note": "C3"
+  },
+  {
+    "kind": "horn",
+    "path": "Brass/F Horn/sus/MOHorn_sus_F2_v2_1.wav",
+    "note": "F2"
+  },
+  {
+    "kind": "flute",
+    "path": "Woodwinds/Flute/expvib/LDFlute_expvib_C4_v1_1.wav",
+    "note": "C4"
+  },
+  {
+    "kind": "flute",
+    "path": "Woodwinds/Flute/expvib/LDFlute_expvib_A3_v1_1.wav",
+    "note": "A3"
+  },
+  {
+    "kind": "pizz",
+    "path": "Strings/Cello Section/pizzT/pizzT_C1_v1_RR1.wav",
+    "note": "C1"
+  },
+  {
+    "kind": "pizz",
+    "path": "Strings/Cello Section/pizzT/pizzT_C3_v1_RR1.wav",
+    "note": "C3"
+  },
+  {
+    "kind": "drum",
+    "path": "Percussion/BDrumNewhit_v3_rr1_Sum.wav",
+    "note": "C2"
+  },
+  {
+    "kind": "timpani",
+    "path": "Percussion/Timpani/Timpani1_Hit_v3_rr1_Sum.wav",
+    "note": "C2"
+  },
+  {
+    "kind": "strings",
+    "note": "A2",
+    "path": "Strings/Violin Section/susVib/VlnEns_susVib_A2_v1.wav"
+  },
+  {
+    "kind": "strings",
+    "note": "A3",
+    "path": "Strings/Violin Section/susVib/VlnEns_susVib_A3_v1.wav"
+  }
+]

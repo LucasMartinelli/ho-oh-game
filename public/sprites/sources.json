@@ -1,0 +1,84 @@
+{
+  "repository": "https://github.com/PokeAPI/sprites",
+  "commit": "97a7832d307311c0e1c6ea9035308bf80cc94f81",
+  "assets": [
+    {
+      "name": "hooh",
+      "source": "https://raw.githubusercontent.com/PokeAPI/sprites/97a7832d307311c0e1c6ea9035308bf80cc94f81/sprites/pokemon/versions/generation-v/black-white/animated/250.gif",
+      "frames": 42,
+      "usedFrames": 24
+    },
+    {
+      "name": "caterpie",
+      "source": "https://raw.githubusercontent.com/PokeAPI/sprites/97a7832d307311c0e1c6ea9035308bf80cc94f81/sprites/pokemon/versions/generation-v/black-white/animated/10.gif",
+      "frames": 45,
+      "usedFrames": 24
+    },
+    {
+      "name": "rattata",
+      "source": "https://raw.githubusercontent.com/PokeAPI/sprites/97a7832d307311c0e1c6ea9035308bf80cc94f81/sprites/pokemon/versions/generation-v/black-white/animated/19.gif",
+      "frames": 54,
+      "usedFrames": 24
+    },
+    {
+      "name": "pidgey",
+      "source": "https://raw.githubusercontent.com/PokeAPI/sprites/97a7832d307311c0e1c6ea9035308bf80cc94f81/sprites/pokemon/versions/generation-v/black-white/animated/16.gif",
+      "frames": 25,
+      "usedFrames": 24
+    },
+    {
+      "name": "zubat",
+      "source": "https://raw.githubusercontent.com/PokeAPI/sprites/97a7832d307311c0e1c6ea9035308bf80cc94f81/sprites/pokemon/versions/generation-v/black-white/animated/41.gif",
+      "frames": 55,
+      "usedFrames": 24
+    },
+    {
+      "name": "bulbasaur",
+      "source": "https://raw.githubusercontent.com/PokeAPI/sprites/97a7832d307311c0e1c6ea9035308bf80cc94f81/sprites/pokemon/versions/generation-v/black-white/animated/1.gif",
+      "frames": 51,
+      "usedFrames": 24
+    },
+    {
+      "name": "squirtle",
+      "source": "https://raw.githubusercontent.com/PokeAPI/sprites/97a7832d307311c0e1c6ea9035308bf80cc94f81/sprites/pokemon/versions/generation-v/black-white/animated/7.gif",
+      "frames": 30,
+      "usedFrames": 24
+    },
+    {
+      "name": "charizard",
+      "source": "https://raw.githubusercontent.com/PokeAPI/sprites/97a7832d307311c0e1c6ea9035308bf80cc94f81/sprites/pokemon/versions/generation-v/black-white/animated/6.gif",
+      "frames": 72,
+      "usedFrames": 24
+    },
+    {
+      "name": "blastoise",
+      "source": "https://raw.githubusercontent.com/PokeAPI/sprites/97a7832d307311c0e1c6ea9035308bf80cc94f81/sprites/pokemon/versions/generation-v/black-white/animated/9.gif",
+      "frames": 124,
+      "usedFrames": 24
+    },
+    {
+      "name": "venusaur",
+      "source": "https://raw.githubusercontent.com/PokeAPI/sprites/97a7832d307311c0e1c6ea9035308bf80cc94f81/sprites/pokemon/versions/generation-v/black-white/animated/3.gif",
+      "frames": 100,
+      "usedFrames": 24
+    },
+    {
+      "name": "dragonite",
+      "source": "https://raw.githubusercontent.com/PokeAPI/sprites/97a7832d307311c0e1c6ea9035308bf80cc94f81/sprites/pokemon/versions/generation-v/black-white/animated/149.gif",
+      "frames": 56,
+      "usedFrames": 24
+    },
+    {
+      "name": "hooh-back",
+      "source": "https://raw.githubusercontent.com/PokeAPI/sprites/97a7832d307311c0e1c6ea9035308bf80cc94f81/sprites/pokemon/versions/generation-v/black-white/animated/back/250.gif",
+      "frames": 80,
+      "usedFrames": 24
+    },
+    {
+      "name": "lugia",
+      "source": "https://raw.githubusercontent.com/PokeAPI/sprites/97a7832d307311c0e1c6ea9035308bf80cc94f81/sprites/pokemon/versions/generation-v/black-white/animated/249.gif",
+      "frames": 60,
+      "usedFrames": 24
+    }
+  ]
+}
