@@ -1,3 +1,9 @@
+# Áudio regional e instalação · v3.6
+
+Compilação TypeScript/produção; quatro trilhas AAC decodificadas no Chromium, com sinal não silencioso, duração de 37–56 segundos, dois stems sincronizados e loops habilitados. Trocas de região, trocas rápidas durante carregamento, aumento da camada de combate e silêncio na pausa passaram. Erro de fullscreen simulado com agente de iPhone: instrução exibida. Manifesto standalone e ícones retornam 200. Sem erros JavaScript no teste.
+
+Picos PCM combinados limitados a 0,78 antes da codificação. Não foi realizada medição LUFS, avaliação auditiva em alto-falantes físicos nem teste de instalação num iPhone real.
+
 # Correção mobile · v3.5.1
 
 Terreno dividido em 12 texturas de 1024×1024, sem upload da textura única de 4096×3072. Canvas temporário liberado após a geração. Neblina pós-processada desativada em dispositivos touch/telas estreitas; clima leve preservado. HUD reduzido e opções concentradas no menu Sua jornada.

@@ -1,3 +1,9 @@
+# Música por região e Tela de Início · v3.6
+
+Quatro composições originais com amostras acústicas VSCO CC0: bosque (88 BPM), marés (76 BPM), cinzas (104 BPM), ruínas (68 BPM). Cada tema tem uma camada de combate sincronizada. Transição de 1,5 s e decodificação apenas da região necessária. Gerar novamente: `python scripts/render-regions.py DIRETORIO_DAS_AMOSTRAS` (numpy e afconvert/macOS).
+
+No iPhone, a API de tela cheia para páginas pode não estar disponível. Abra o site no Safari, Compartilhar → Adicionar à Tela de Início → Abrir como App da Web (se disponível). Abra pelo ícone criado. O manifesto permite modo independente sem barra de endereço; isso não é uma promessa de tela cheia nativa nem de funcionamento offline. No Android/desktop o botão continua usando a API nativa quando disponível.
+
 # Controles para celular · v3.5
 
 A interface se adapta a telas em pé e deitadas. Arraste o direcional esquerdo para voar em oito direções; segure FOGO com o outro dedo para atacar enquanto se move. O fogo acompanha a última direção do voo. Impulso fica ao lado do fogo; habilidades, mapa, áudio e pausa ficam nas laterais. Inferno e Ciclone ficam disponíveis após aprendê-los. Menus longos rolam dentro do painel, sem rolar a página. Controles são liberados ao pausar, trocar de orientação ou interromper um toque. Teclado e mouse continuam disponíveis no computador.

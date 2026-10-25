@@ -30,3 +30,7 @@ Os efeitos de interface e combate continuam sintetizados via Web Audio. Nenhuma 
 ## Lugia
 
 O companheiro Lugia usa o sprite animado de Pokémon Black & White, do mesmo acervo PokéAPI e commit dos demais personagens. Origem e conversão de 60 para 24 quadros registradas em `public/sprites/sources.json`; os mesmos direitos e limitações de Pokémon descritos acima se aplicam.
+
+
+## Trilhas regionais v3.6
+Quatro composições originais (Bosque Esmeralda, Lago das Marés, Vale das Cinzas, Ruínas do Céu), renderizadas com as mesmas amostras VSCO CC0 já creditadas. Nenhuma gravação musical de Pokémon foi utilizada. Gerador: scripts/render-regions.py.

@@ -161,3 +161,5 @@ body.touch-layout[data-game-state="playing"] #fullscreen,body.touch-layout[data-
 }
 .touch-layout .intro-card .hero-art #hero { position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) scale(.65); }
 .touch-layout .intro-card .hero-art .halo { width:90px; height:90px; }
+#fullscreen-status { max-width:min(420px,calc(100vw - 32px)); font-size:15px; line-height:1.6; }
+#music-region { display:block; color:#b6c5a9; font-size:12px; margin-top:12px; }
