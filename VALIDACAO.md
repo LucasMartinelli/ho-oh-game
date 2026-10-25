@@ -1,3 +1,9 @@
+# Correção mobile · v3.5.1
+
+Terreno dividido em 12 texturas de 1024×1024, sem upload da textura única de 4096×3072. Canvas temporário liberado após a geração. Neblina pós-processada desativada em dispositivos touch/telas estreitas; clima leve preservado. HUD reduzido e opções concentradas no menu Sua jornada.
+
+Playwright Chromium: blocos opacos com dimensões verificadas, menus, multitouch e layout em 390×844, 360×640 e 844×390; capturas inspecionadas; sem erros JavaScript. Não houve teste em iPhone físico: a correção aborda as causas prováveis observadas, mas requer confirmação no aparelho afetado.
+
 # Validação mobile · v3.5
 
 - Compilação TypeScript e versão autocontida concluídas.

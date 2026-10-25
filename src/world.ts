@@ -8,7 +8,8 @@ export class World{
  paths=[...CONNECTIONS.map(([a,b])=>[STAGES[a].x,STAGES[a].y,STAGES[b].x,STAGES[b].y]),...CAMPS.slice(1).map((c,i)=>[REGIONS[i].x,REGIONS[i].y,c.x,c.y])];
  constructor(private scene:Phaser.Scene){
   makeScenery(scene);
-  const t=scene.textures.createCanvas('terrain',WORLD.w/2,WORLD.h/2)!;const c=t.context;const w=WORLD.w/2,h=WORLD.h/2;
+  // Paint on a CPU canvas; never upload the entire world as one GPU texture.
+  const w=WORLD.w/2,h=WORLD.h/2,terrain=document.createElement('canvas');terrain.width=w;terrain.height=h;const c=terrain.getContext('2d')!;
   let seed=250;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
   c.fillStyle='#183c4b';c.fillRect(0,0,w,h);
   for(let i=0;i<14000;i++){const x=rand()*w,y=rand()*h;c.fillStyle=i%2?'#50878a25':'#0f2d3a35';c.fillRect(x,y,9+rand()*18,1)}
@@ -40,7 +41,9 @@ export class World{
    else{c.fillStyle='#3e5051';c.fillRect(x/2-17,y/2-6,38,13);c.fillStyle='#9da89f';c.fillRect(x/2-12,y/2-43,24,40);c.fillStyle='#c7c9b0';c.fillRect(x/2-17,y/2-48,34,7);c.fillRect(x/2-15,y/2-8,30,5);c.fillStyle='#657a73';for(let j=0;j<3;j++)c.fillRect(x/2-7+j*7,y/2-40,2,30);c.fillStyle='#7d9564';c.fillRect(x/2-15,y/2-10,9,8)}this.obstacles.push({x,y,r:42})}}
   for(const p of STAGES.filter(p=>p.region===3)){for(let i=0;i<35;i++){const x=p.x+(dressing()-.5)*250,y=p.y+(dressing()-.5)*250;c.fillStyle=i%2?'#c1c5ad35':'#30474640';c.fillRect(x/2,y/2,10,6)}}
   c.restore();
-  t.refresh();scene.add.image(0,0,'terrain').setOrigin(0).setScale(2).setDepth(-100);
+  // Small power-of-two tiles avoid large/NPOT texture failures on mobile GPUs.
+  for(let y=0;y<h;y+=1024)for(let x=0;x<w;x+=1024){const key=`terrain-${x}-${y}`,tile=scene.textures.createCanvas(key,1024,1024)!;tile.context.drawImage(terrain,x,y,1024,1024,0,0,1024,1024);tile.refresh();scene.add.image(x*2,y*2,key).setOrigin(0).setScale(2).setDepth(-100)}
+  terrain.width=terrain.height=1;
   for(const o of this.obstacles){const minx=Math.floor((o.x-o.r)/128),maxx=Math.floor((o.x+o.r)/128),miny=Math.floor((o.y-o.r)/128),maxy=Math.floor((o.y+o.r)/128);for(let x=minx;x<=maxx;x++)for(let y=miny;y<=maxy;y++){const key=x+','+y;const a=this.grid.get(key)||[];a.push(o);this.grid.set(key,a)}}
  }
  regionAt(x:number,y:number){let best=Infinity,region=0;for(const p of STAGES){const d=(p.x-x)**2+(p.y-y)**2;if(d<best){best=d;region=p.region}}return region}

@@ -2,7 +2,11 @@ import Phaser from 'phaser';
 import type {World} from './world';
 import type {Player} from './actors';
 import {seeded} from './scenery';
-const fragment=`precision mediump float;
+const fragment=`#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
 uniform sampler2D uMainSampler;
 uniform vec3 uTint;
 uniform vec3 uFogColor;
@@ -30,7 +34,8 @@ export class Atmosphere {
  constructor(private scene:Phaser.Scene,private world:World){
   this.water=scene.add.graphics().setDepth(-15);this.air=scene.add.graphics().setDepth(9200).setScrollFactor(0);this.light=scene.add.graphics().setDepth(8800).setScrollFactor(0).setBlendMode(Phaser.BlendModes.ADD);this.aura=scene.add.image(0,0,'glow').setBlendMode(Phaser.BlendModes.ADD).setScale(2.7).setAlpha(.12);
   const rnd=seeded(250442);for(let i=0;i<65;i++)this.motes.push({x:rnd()*1120,y:rnd()*640,phase:rnd()*6.28,speed:7+rnd()*18,size:.6+rnd()*1.4});
-  if(scene.game.renderer instanceof Phaser.Renderer.WebGL.WebGLRenderer){scene.game.renderer.pipelines.addPostPipeline('JohtoAtmosphere',AtmospherePipeline);scene.cameras.main.setPostPipeline('JohtoAtmosphere');this.pipeline=scene.cameras.main.getPostPipeline('JohtoAtmosphere') as AtmospherePipeline}
+  // Mobile uses the lightweight weather layer, avoiding precision-sensitive fullscreen fog.
+  if(!matchMedia('(pointer: coarse)').matches&&innerWidth>700&&scene.game.renderer instanceof Phaser.Renderer.WebGL.WebGLRenderer){scene.game.renderer.pipelines.addPostPipeline('JohtoAtmosphere',AtmospherePipeline);scene.cameras.main.setPostPipeline('JohtoAtmosphere');this.pipeline=scene.cameras.main.getPostPipeline('JohtoAtmosphere') as AtmospherePipeline}
  }
  update(t:number,dt:number,p:Player,mx=0,my=0,region=0,reduced=false){
   const cam=this.scene.cameras.main,near=(x:number,y:number,r=180)=>x>cam.scrollX-r&&y>cam.scrollY-r&&x<cam.scrollX+cam.width/cam.zoom+r&&y<cam.scrollY+cam.height/cam.zoom+r;
