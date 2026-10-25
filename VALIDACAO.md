@@ -1,3 +1,11 @@
+# Terreno mobile — desenho direto em blocos
+
+- Removido o canvas intermediário de 4096×3072: o terreno agora é pintado diretamente nas 12 texturas de 1024×1024, incluindo caminhos, recortes, gradientes e sombras. Isso elimina a superfície grande ainda presente na correção anterior; não altera o formato dos saves.
+- `tests/terrain-mobile.cjs` passou em Chromium e WebKit com emulação de iPhone: orçamento de 1024×1024 também para canvases temporários, terra nos 18 destinos, água em cinco emendas e ausência de pós-processamento mobile. A geração das posições de árvores e obstáculos mantém os mesmos hashes da versão anterior.
+- O limite de canvas simulado falha na implementação anterior (`4096×3072`) e permite iniciar com a nova. Essa reprodução controlada testa a dependência removida, não reproduz a falha específica do aparelho do usuário.
+- `tests/mobile-clean.cjs` passou no Chromium: menus, controles simultâneos via CDP, cancelamento e layouts de retrato/paisagem, sem exceções. Capturas das quatro regiões, emendas e paisagem inspecionadas. Build TypeScript/Vite e verificação da produção no WebKit, sem `window.battle`.
+- Limite: o desaparecimento do chão relatado no iPhone não ocorreu nos navegadores locais antes da alteração. A confirmação definitiva depende de testar a nova versão no aparelho afetado; emulação WebKit no macOS não equivale a Safari em hardware iOS. Permanece o aviso de tamanho do pacote Vite por causa do áudio incorporado.
+
 # Jogabilidade · v3.7
 
 - 33 verificações: multitouch real via CDP com movimento à esquerda/fogo à direita, mira diagonal, cancelamento, aviso antes de atacar/alvo fixo para sete espécies, recuperação, bônus de dano de quatro chefes, alternância de padrões, quatro segredos livres de colisão, recompensas únicas, persistência e timeout/repetição da trilha.

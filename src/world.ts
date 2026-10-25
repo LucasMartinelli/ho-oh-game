@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import {HOME,REGIONS,FEATHERS,STAGES,CONNECTIONS,CAMPS,BEACONS,coastline} from './adventure';
 import {makeScenery,seeded} from './scenery';
+import {TerrainPainter} from './terrain';
 export const WORLD={w:8192,h:6144};
 export interface Obstacle{x:number;y:number;r:number}
 export class World{
@@ -8,8 +9,8 @@ export class World{
  paths=[...CONNECTIONS.map(([a,b])=>[STAGES[a].x,STAGES[a].y,STAGES[b].x,STAGES[b].y]),...CAMPS.slice(1).map((c,i)=>[REGIONS[i].x,REGIONS[i].y,c.x,c.y])];
  constructor(private scene:Phaser.Scene){
   makeScenery(scene);
-  // Paint on a CPU canvas; never upload the entire world as one GPU texture.
-  const w=WORLD.w/2,h=WORLD.h/2,terrain=document.createElement('canvas');terrain.width=w;terrain.height=h;const c=terrain.getContext('2d')!;
+  // Keep CPU canvases and GPU textures small; no full-world intermediate surface.
+  const w=WORLD.w/2,h=WORLD.h/2,c=new TerrainPainter(scene,w,h);
   let seed=250;const rand=()=>{seed=(seed*1664525+1013904223)>>>0;return seed/4294967296};
   c.fillStyle='#183c4b';c.fillRect(0,0,w,h);
   for(let i=0;i<14000;i++){const x=rand()*w,y=rand()*h;c.fillStyle=i%2?'#50878a25':'#0f2d3a35';c.fillRect(x,y,9+rand()*18,1)}
@@ -41,16 +42,14 @@ export class World{
    else{c.fillStyle='#3e5051';c.fillRect(x/2-17,y/2-6,38,13);c.fillStyle='#9da89f';c.fillRect(x/2-12,y/2-43,24,40);c.fillStyle='#c7c9b0';c.fillRect(x/2-17,y/2-48,34,7);c.fillRect(x/2-15,y/2-8,30,5);c.fillStyle='#657a73';for(let j=0;j<3;j++)c.fillRect(x/2-7+j*7,y/2-40,2,30);c.fillStyle='#7d9564';c.fillRect(x/2-15,y/2-10,9,8)}this.obstacles.push({x,y,r:42})}}
   for(const p of STAGES.filter(p=>p.region===3)){for(let i=0;i<35;i++){const x=p.x+(dressing()-.5)*250,y=p.y+(dressing()-.5)*250;c.fillStyle=i%2?'#c1c5ad35':'#30474640';c.fillRect(x/2,y/2,10,6)}}
   c.restore();
-  // Small power-of-two tiles avoid large/NPOT texture failures on mobile GPUs.
-  for(let y=0;y<h;y+=1024)for(let x=0;x<w;x+=1024){const key=`terrain-${x}-${y}`,tile=scene.textures.createCanvas(key,1024,1024)!;tile.context.drawImage(terrain,x,y,1024,1024,0,0,1024,1024);tile.refresh();scene.add.image(x*2,y*2,key).setOrigin(0).setScale(2).setDepth(-100)}
-  terrain.width=terrain.height=1;
+  c.refresh();
   for(const o of this.obstacles){const minx=Math.floor((o.x-o.r)/128),maxx=Math.floor((o.x+o.r)/128),miny=Math.floor((o.y-o.r)/128),maxy=Math.floor((o.y+o.r)/128);for(let x=minx;x<=maxx;x++)for(let y=miny;y<=maxy;y++){const key=x+','+y;const a=this.grid.get(key)||[];a.push(o);this.grid.set(key,a)}}
  }
  regionAt(x:number,y:number){let best=Infinity,region=0;for(const p of STAGES){const d=(p.x-x)**2+(p.y-y)**2;if(d<best){best=d;region=p.region}}return region}
  stageAt(x:number,y:number){return STAGES.reduce((a,b)=>Math.hypot(a.x-x,a.y-y)<Math.hypot(b.x-x,b.y-y)?a:b)}
  onLand(x:number,y:number,r=0){return STAGES.some(p=>Math.hypot((x-p.x)/p.rx,(y-p.y)/p.ry)<=coastline(p.x,p.y,Math.atan2((y-p.y)/p.ry,(x-p.x)/p.rx))-r/Math.min(p.rx,p.ry))||this.paths.some(([ax,ay,bx,by])=>this.distanceSegment(x,y,ax,ay,bx,by)<85-r)}
  distanceSegment(x:number,y:number,ax:number,ay:number,bx:number,by:number){const dx=bx-ax,dy=by-ay,t=Phaser.Math.Clamp(((x-ax)*dx+(y-ay)*dy)/(dx*dx+dy*dy),0,1);return Math.hypot(x-ax-t*dx,y-ay-t*dy)}
- private tree(c:CanvasRenderingContext2D,x:number,y:number,rand:()=>number,region:number){
+ private tree(c:TerrainPainter,x:number,y:number,rand:()=>number,region:number){
   // Preserve the generation stream so existing saves retain identical solid geometry.
   for(let i=0;i<26;i++)rand();
   c.fillStyle='#152d2240';c.beginPath();c.ellipse(x+9,y+9,27,11,-.28,0,6.28);c.fill();
@@ -58,7 +57,7 @@ export class World{
   const sprite=this.scene.add.image(x*2,y*2+18,`tree-${region}-${variant}`).setOrigin(.5,.9).setScale(1.25).setDepth(y*2+28);
   this.trees.push({sprite,x:x*2,y:y*2+18,phase:random()*6.28});
  }
- private rock(c:CanvasRenderingContext2D,x:number,y:number,region:number){
+ private rock(c:TerrainPainter,x:number,y:number,region:number){
   const rnd=seeded(Math.floor(x*141+y*541)),pal=region===2?['#4c463b','#7b7059','#ab9771','#d0bb8d']:['#394b43','#6d7c6b','#9fa78b','#c2c9a6'];
   const poly=(pts:number[][],col:string)=>{c.fillStyle=col;c.beginPath();pts.forEach(([px,py],i)=>i?c.lineTo(x+px,y+py):c.moveTo(x+px,y+py));c.closePath();c.fill()};
   poly([[-12,5],[-9,-7],[0,-12],[11,-8],[15,5],[8,12],[-7,11]],pal[0]);poly([[-10,2],[-7,-7],[0,-10],[10,-6],[7,5],[-3,7]],pal[1]);poly([[-7,-7],[0,-10],[10,-6],[3,-1],[-7,0]],pal[2]);poly([[-6,-7],[0,-9],[7,-6],[1,-4]],pal[3]);
