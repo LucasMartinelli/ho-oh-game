@@ -163,3 +163,7 @@ body.touch-layout[data-game-state="playing"] #fullscreen,body.touch-layout[data-
 .touch-layout .intro-card .hero-art .halo { width:90px; height:90px; }
 #fullscreen-status { max-width:min(420px,calc(100vw - 32px)); font-size:15px; line-height:1.6; }
 #music-region { display:block; color:#b6c5a9; font-size:12px; margin-top:12px; }
+#touch-fire { position:relative; }
+#touch-fire.pressed:after { content:'›'; position:absolute; inset:0; display:flex; align-items:center; justify-content:flex-end; padding-right:2px; color:#fff3c5; font-size:30px; transform:rotate(var(--aim-angle,0rad)); pointer-events:none; }
+.modal .combat-tip { font-size:12px; line-height:1.5; color:#b7c5ae; margin:14px 0; }
+body:not(.touch-layout) .combat-tip { display:none; }

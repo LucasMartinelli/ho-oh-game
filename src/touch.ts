@@ -17,10 +17,11 @@ export function installTouchControls(scene:BattleScene){
   scene.touch.y=Math.abs(Math.sin(angle))<.01?0:Math.sin(angle);
  };
  const releaseMove=(event?:PointerEvent)=>{if(event&&event.pointerId!==moveId)return;moveId=undefined;scene.touch.x=scene.touch.y=0;knob.style.transform='translate(0px,0px)';stick.classList.remove('pressed')};
- const releaseFire=(event?:PointerEvent)=>{if(event&&event.pointerId!==fireId)return;fireId=undefined;scene.touch.fire=false;fire.classList.remove('pressed')};
+ const releaseFire=(event?:PointerEvent)=>{if(event&&event.pointerId!==fireId)return;fireId=undefined;scene.touch.fire=false;scene.touch.aimX=scene.touch.aimY=0;fire.style.removeProperty('--aim-angle');fire.classList.remove('pressed')};
  stick.onpointerdown=event=>{if(scene.state!=='playing'||moveId!==undefined)return;event.preventDefault();moveId=event.pointerId;stick.setPointerCapture(moveId);stick.classList.add('pressed');move(event)};
  stick.onpointermove=move;stick.onpointerup=stick.onpointercancel=stick.onlostpointercapture=releaseMove;
- fire.onpointerdown=event=>{if(scene.state!=='playing'||fireId!==undefined)return;event.preventDefault();fireId=event.pointerId;fire.setPointerCapture(fireId);scene.touch.fire=true;fire.classList.add('pressed')};
+ fire.onpointerdown=event=>{if(scene.state!=='playing'||fireId!==undefined)return;event.preventDefault();fireId=event.pointerId;fire.setPointerCapture(fireId);scene.touch.fire=true;scene.touch.aimX=scene.player.dx;scene.touch.aimY=scene.player.dy;fire.style.setProperty('--aim-angle',`${Math.atan2(scene.player.dy,scene.player.dx)}rad`);fire.classList.add('pressed')};
+ fire.onpointermove=event=>{if(event.pointerId!==fireId)return;const box=fire.getBoundingClientRect(),x=event.clientX-box.left-box.width/2,y=event.clientY-box.top-box.height/2,length=Math.hypot(x,y);if(length<12)return;scene.touch.aimX=x/length;scene.touch.aimY=y/length;fire.style.setProperty('--aim-angle',`${Math.atan2(y,x)}rad`)};
  fire.onpointerup=fire.onpointercancel=fire.onlostpointercapture=releaseFire;
  dash.onpointerdown=event=>{event.preventDefault();if(scene.state==='playing')scene.touch.dash=true};
  const reset=()=>{releaseMove();releaseFire();scene.touch.dash=false};

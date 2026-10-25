@@ -1,3 +1,4 @@
+import {freshAttack} from './encounters';
 import {HOME} from './adventure';
 import Phaser from 'phaser';
 import {Species,SPRITES} from './assets';
@@ -15,6 +16,7 @@ export class Player extends Actor{
  constructor(scene:Phaser.Scene){super(scene,HOME.x,HOME.y,'hooh',1.12);this.r=19}
 }
 export class Enemy extends Actor{
+ attack=freshAttack();
  speed:number;damage:number;points:number;xp:number;boss:boolean;shot=1+Math.random();hitTime=0;kx=0;ky=0;charge=0;chargeX=0;chargeY=0;special=4;steer=1;
  duoScaled=false;homeX:number;homeY:number;aggro=false;burn=0;slow=0;dashHit=0;id='';region=0;
  constructor(scene:Phaser.Scene,x:number,y:number,species:Species,level:number){const boss=['charizard','blastoise','venusaur','dragonite'].includes(species);super(scene,x,y,species,boss?1.5:1.12);const s=STATS[species];this.boss=boss;this.r=boss?36:16;this.maxHp=this.hp=Math.round(s.hp*(boss?1:1+Math.max(0,level-1)*.09));this.speed=s.speed;this.damage=s.damage;this.points=s.points;this.xp=s.xp;this.steer=Math.random()<.5?-1:1;this.homeX=x;this.homeY=y}

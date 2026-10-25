@@ -1,3 +1,10 @@
+# Jogabilidade · v3.7
+
+- 33 verificações: multitouch real via CDP com movimento à esquerda/fogo à direita, mira diagonal, cancelamento, aviso antes de atacar/alvo fixo para sete espécies, recuperação, bônus de dano de quatro chefes, alternância de padrões, quatro segredos livres de colisão, recompensas únicas, persistência e timeout/repetição da trilha.
+- Dano de área: nenhum dano durante aviso; acerta ao disparar; sair da marca evita dano. Segunda fase reduz tempo de preparação.
+- Regressão: 9 verificações de fogo/teclado em oito direções e 20 verificações da campanha (marcos, chefes, quatro capítulos, viagem, respawn e saves). Chefes da regressão são derrotados de forma programática; não equivale a um teste de balanceamento por uma pessoa.
+- Capturas mobile e paisagem inspecionadas. Caminho da trilha verificado por busca com colisões e velocidade base. Compilação TypeScript e produção. Não testado em aparelho físico.
+
 # Áudio regional e instalação · v3.6
 
 Compilação TypeScript/produção; quatro trilhas AAC decodificadas no Chromium, com sinal não silencioso, duração de 37–56 segundos, dois stems sincronizados e loops habilitados. Trocas de região, trocas rápidas durante carregamento, aumento da camada de combate e silêncio na pausa passaram. Erro de fullscreen simulado com agente de iPhone: instrução exibida. Manifesto standalone e ícones retornam 200. Sem erros JavaScript no teste.

@@ -1,3 +1,10 @@
+# Combate e descobertas · v3.7
+
+- Mira independente no celular: segure FOGO e arraste para apontar em qualquer direção, enquanto o direcional esquerdo controla o voo. O impulso segue o movimento, quando há movimento, permitindo recuar durante o ataque. Soltar o fogo devolve a orientação ao voo. Mouse e teclado continuam funcionando.
+- Squirtle anuncia seu jato; Bulbasaur marca o chão antes de atacar; Rattata avisa sua arrancada. A mira dos ataques fica fixa após o aviso.
+- Chefes alternam dois padrões: Charizard (leque/arrancada), Blastoise (jato/leque), Venusaur (raízes/anel com abertura), Dragonite (arrancada/anel com abertura). Abaixo de metade da vida, entram na segunda fase. Após o ataque, o círculo verde indica recuperação: recebem 35% mais dano nesse período. Fácil tem avisos e pausas maiores.
+- Quatro descobertas opcionais nos desvios: Baú das Lanternas, Correntes da Maré (três círculos em 25 s), Ninho de Cinzas (encontro de combate) e Relíquia do Céu. Dão XP e cura; a última concede também um ponto de habilidade. As recompensas são únicas e persistem no save existente.
+
 # Música por região e Tela de Início · v3.6
 
 Quatro composições originais com amostras acústicas VSCO CC0: bosque (88 BPM), marés (76 BPM), cinzas (104 BPM), ruínas (68 BPM). Cada tema tem uma camada de combate sincronizada. Transição de 1,5 s e decodificação apenas da região necessária. Gerar novamente: `python scripts/render-regions.py DIRETORIO_DAS_AMOSTRAS` (numpy e afconvert/macOS).
