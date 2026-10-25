@@ -3,7 +3,7 @@ import type {BattleScene} from './scene';
 /** Each thumb owns its pointer; captures keep controls reliable outside their bounds. */
 export function installTouchControls(scene:BattleScene){
  const stick=document.getElementById('touch-stick')!,knob=stick.querySelector<HTMLElement>('.stick-knob')!,fire=document.getElementById('touch-fire')!,dash=document.getElementById('touch-dash')!;
- let moveId:number|undefined,fireId:number|undefined;
+ let moveId:number|undefined,fireId:number|undefined,dashId:number|undefined;
  const move=(event:PointerEvent)=>{
   if(event.pointerId!==moveId)return;
   const box=stick.getBoundingClientRect(),radius=box.width*.32;
@@ -26,8 +26,10 @@ export function installTouchControls(scene:BattleScene){
  fire.onpointerdown=event=>{if(scene.state!=='playing'||fireId!==undefined)return;event.preventDefault();fireId=event.pointerId;fire.setPointerCapture(fireId);scene.touch.fire=true;scene.touch.aimX=scene.player.dx;scene.touch.aimY=scene.player.dy;fire.style.setProperty('--aim-angle',`${Math.atan2(scene.player.dy,scene.player.dx)}rad`);fire.classList.add('pressed')};
  fire.onpointermove=event=>{if(event.pointerId!==fireId)return;const box=fire.getBoundingClientRect(),x=event.clientX-box.left-box.width/2,y=event.clientY-box.top-box.height/2,length=Math.hypot(x,y);if(length<12)return;scene.touch.aimX=x/length;scene.touch.aimY=y/length;fire.style.setProperty('--aim-angle',`${Math.atan2(y,x)}rad`)};
  fire.onpointerup=fire.onpointercancel=fire.onlostpointercapture=releaseFire;
- dash.onpointerdown=event=>{event.preventDefault();if(scene.state==='playing')scene.touch.dash=true};
- const reset=()=>{releaseMove();releaseFire();scene.touch.dash=false};
+ dash.onpointerdown=event=>{if(scene.state!=='playing'||dashId!==undefined)return;event.preventDefault();dashId=event.pointerId;dash.setPointerCapture(dashId);scene.requestDash()};
+ const releaseDash=(event?:PointerEvent)=>{if(event&&event.pointerId!==dashId)return;dashId=undefined;scene.cancelDash()};
+ dash.onpointerup=dash.onpointercancel=dash.onlostpointercapture=releaseDash;
+ const reset=()=>{releaseMove();releaseFire();releaseDash()};
  window.addEventListener('blur',reset);window.addEventListener('resize',reset);
  document.addEventListener('visibilitychange',()=>{if(document.hidden)reset()});
  for(const element of [stick,fire,dash])element.addEventListener('contextmenu',event=>event.preventDefault());

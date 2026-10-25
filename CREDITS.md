@@ -40,3 +40,11 @@ O companheiro Lugia usa o sprite animado de Pokémon Black & White, do mesmo ace
 
 ## Trilhas regionais v3.6
 Quatro composições originais (Bosque Esmeralda, Lago das Marés, Vale das Cinzas, Ruínas do Céu), renderizadas com as mesmas amostras VSCO CC0 já creditadas. Nenhuma gravação musical de Pokémon foi utilizada. Gerador: scripts/render-regions.py.
+
+## Revisão dos cenários — outubro de 2026
+
+A arquitetura e a vegetação reaproveitam o [Tiny Town de Kenney](https://kenney.nl/assets/tiny-town), CC0. Os recortes foram corrigidos para preservar árvores completas de 1×2 células e copas individuais recompostas com seus troncos, e os telhados, fachadas, arcos e colunas foram recompostos. Recolorações, máscaras dos telhados e jardins são adaptações locais. O bloco de autotiles de vegetação de 3×3 deixou de ser usado como uma árvore; as árvores largas agora têm uma única copa conectada ao tronco. Lanternas, acabamento das colunas e sala de luz do farol receberam detalhes em pixel art criados para o projeto. As flores usam recortes transparentes do mesmo tileset.
+
+Os personagens ambientais e as fogueiras continuam usando Tiny 16 de Sharm/Lanea Zimmerman, com os créditos e licenças acima. Cada quadro de fogo agora inclui as quatro células do desenho original, sem cortar a chama ou o pedestal.
+
+Os pequenos tiles repetíveis de grama, terra, areia, piso e água foram criados para o projeto em `scripts/build-scenery.py`, com paletas por bioma. O gerador requer Python + Pillow; todos os PNGs resultantes ficam incorporados em `src/scenery-data.json`, sem requisições externas durante o jogo.

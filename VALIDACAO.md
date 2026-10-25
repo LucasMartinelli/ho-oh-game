@@ -204,3 +204,56 @@ Limites: verificações usam estados forçados e leitura de valores, não uma se
 - Nova cadeia `musicBus → lowpass → duckBus` em `audio.ts`. Pausa, painéis, morte, vitória e menu deixaram de silenciar a trilha: ela segue a ~−11 dB, com filtro em 620 Hz e camada de combate zerada (o tom "calmo" é derivado das gravações existentes, sem assets novos). Nos acampamentos (`CAMPS`, raio 190) o modo `rest` mantém o ganho normal, mas fecha o filtro em 2400 Hz e força só a camada de exploração — inclusive se um inimigo estiver em aggro dentro do raio seguro.
 - Verificado via `window.battle` no dev server (`playwright-cli run-code`, `tests/calm-music.cjs`): filtro <6000 Hz e intensidade ~0 ao nascer no santuário, inimigo agressivo no refúgio não sobe a camada de combate, filtro reabre ao explorar, pausa deixa a trilha audível e reduzida (ganho ~0,30, filtro <2500 Hz) e retomada restaura ganho/filtro. `tests/orchestra-weather.cjs` e `tests/regional-music.cjs` adaptados e verdes. `npm run build` sem erros.
 - Limites: validação programática de ganhos/frequências, sem audição humana; a sensação de "calma" pode pedir ajustes de ganho/frequência após jogar. Menu antes da primeira partida continua em silêncio (o navegador exige gesto do usuário para criar o AudioContext).
+
+# Arte do mundo (revamp visual)
+
+- Tilesets reais: Kenney Tiny Town (CC0) + Tiny 16 Basic (CC-BY, Lanea Zimmerman), fatiados/recoloridos/compostos por `scripts/build-scenery.py` em `src/scenery-data.json`; texturas carregam com prefixo `scn-`.
+- Terreno: mar e lagoas usam padrões de tile de água ancorados por tile; gramado é tile por célula com variante por hash; trilhas usam pattern stroke (areia/terra); plataformas dos santuários são slabs de pedra.
+- Sprites no mundo: árvores por bioma (copas Kenney/Tiny16), santuários por região, marcos temáticos (lanterna, raiz, farol, fonte, braseiros animados, obelisco, estrela), acampamentos (tenda+fogueira animada+tronco+caixote), tochas nas trilhas, ruínas (basalto/coluna), portões (espinheiro/rocha/cristal) e spots de perigo visíveis.
+- Dinâmico: eventos climáticos por região (chuva/tempestade com relâmpagos, brasas, pétalas, vaga-lumes, aurora), espuma na costa, aldeões passeando nos refúgios, espíritos nas ruínas do céu, plumas como sprite `gold-feather`.
+- Geometria de colisão inalterada: o stream `rand()` da geração foi preservado; `worldRevision` segue 3, saves compatíveis.
+- Verificado: `npm run build` ok; screenshots no dev server (Chromium) mostram cenário novo em home/bosque/lago/vale; 0 erros de console.
+- Limitações: balanceamento de densidade/estilo das árvores e composição dos santuários é artesanal e pode ser refinado; não testado em aparelho físico nem com efeitos suaves ligados.
+
+## Refinamentos de jogabilidade — 25/10/2026
+
+- Esquiva perfeita concede o bônus uma vez por impulso; um novo impulso permite nova recompensa. Zerar o calor também encerra o superaquecimento.
+- A assistência de avisos aplica +30% ao ataque de raízes, preservando os tempos base e as diferenças entre Fácil/Difícil.
+- Mira de toque seleciona inimigos agressivos visíveis dentro de um cone de 60°, priorizando alinhamento e limitando a correção a 0,14 rad. Alvos atrás não desviam o fogo.
+- O impulso por toque aceita pedidos nos últimos 150 ms da recarga. Soltar, cancelar, perder captura, pausar, redimensionar ou perder foco limpa a espera. Movimento e fogo continuam independentes.
+- Calor no mobile aparece como anel no botão de fogo, com aviso estático a partir de 75% e indicação de resfriamento; sem animação pulsante adicional.
+- A cura pendente da Cinza termina ao completar a vida e é limpa em restauração no refúgio, viagem, retorno após derrota e morte.
+- `tests/gameplay-refinements.cjs`, executado via Playwright CLI em uma sessão isolada no servidor de desenvolvimento: 145 verificações aprovadas, sem exceções JavaScript. Cobertura: ambos os modos, padrões de ataque e fases, recompensa da esquiva, tolerância/cancelamento, cura residual, seleção de mira, três toques simultâneos, mapa/habilidades, teclado/mouse e indicador de calor.
+- Capturas de 390×844 e 844×390 abertas e inspecionadas. Estados de calor alto e superaquecimento legíveis junto ao botão.
+- Limites: Chromium com toque emulado e estados programáticos; sem teste em aparelho físico, Safari, controle físico ou campanha manual completa. Os ajustes não alteram o formato do save v2/revisão de mundo 3. Não foi gerado HTML autocontido nesta entrega.
+- `npm run build`: TypeScript e produção aprovados; permanece o aviso de bundle grande do Vite. Verificação em `vite preview`: ciclo real de aquecimento/resfriamento, mapa e retomada do save após recarregar aprovados, sem referência `window.battle` e sem exceções JavaScript.
+
+## Revisão visual dos cenários — 25/10/2026
+
+- Corrigidos os recortes de árvores e fogueiras; telhados, fachadas, arcos e colunas recompostos a partir dos tiles locais. O mar anteriormente usava um tile de pedra. Novos tiles repetíveis de água, solo e piso, sem bordas de construção repetidas no chão.
+- Cinco refúgios recompostos com casas, jardins, cercas, bancos e poços; santuários com terraços, degraus e monumentos ao fundo. Plantas e flores em pequenos grupos, cores por bioma, névoa e chuva de fundo reduzidas. Rótulos usam a fonte pixel do projeto e deixam de ficar atrás das construções.
+- `tests/scenery-visual.cjs`: 31 capturas (18 trechos, cinco refúgios, oito marcos), atlas sem textura ausente, árvores completas e três quadros de fogo de 32×32. Capturas abertas e inspecionadas. Hashes da geometria antes/depois idênticos: obstáculos `1461126806`, árvores/âncoras/fases `638790592`. Save v2, revisão 3 preservados.
+- Terreno mantém 12 canvases de 1024×1024. Removida a ampliação fracionária dos chunks, que desalinhava os tiles; pintura sem suavização das imagens e padrões ancorados no mundo.
+- `tests/scenery-mobile.cjs`: Chromium com toque emulado, 390×844 e 844×390; captura visual em ambas as orientações, movimento + fogo simultâneos, cancelamento de toque, liberação na pausa, mapa e habilidades acessíveis, sem rolagem da página. Interceptação de `getContext` confirmou ausência de canvas 2D acima de 1024×1024; nenhuma pipeline de pós-processamento no mobile.
+- `npm run build:standalone` aprovado (inclui TypeScript e build de produção). Preview de produção e `jogar.html` abriram, iniciaram partida, aceitaram movimento/ataque e pausa/retomada, sem erros JavaScript e sem expor `window.battle`. Capturas de ambos inspecionadas. Permanece o aviso de bundle grande pelos recursos incorporados.
+- Limites: validação em Chromium e emulação mobile, sem aparelho físico. O passeio visual usa reposicionamento e invulnerabilidade, com avisos de descoberta suprimidos para inspecionar a arte; não equivale a uma campanha completa nem a avaliação humana de balanceamento. Alterações de jogabilidade presentes simultaneamente no workspace não fazem parte desta revisão de arte.
+- Verificação adicional: capturas nas emendas de terra e mar com coordenadas fracionárias de câmera e nas Ruínas do Céu com efeitos suaves; 12 chunks com tamanho de exibição exato de 2048×2048, sem linha vazia observada nas emendas inspecionadas.
+
+## Precisão dos controles e movimento involuntário — 25/10/2026
+
+- Reproduzidos antes da correção: eixo mantido no cache de um gamepad desconectado; impulso retomado após pausa; inversão do impulso ao soltar o movimento enquanto a mira apontava para trás.
+- O impulso agora fixa a direção ao iniciar e é encerrado por pausa/painéis/perda de foco. A duração normal de 180 ms permanece: soltar o direcional durante esse movimento não inverte sua trajetória.
+- Gamepads são lidos do snapshot nativo de dispositivos conectados. Reconexão e retomada exigem retornar ao neutro; ruído dentro de 25% do analógico é ignorado. Fora dessa zona, a velocidade é gradual. Teclado e direcional touch não somam desvios do analógico. Soltura/desconexão cancela impulso pendente originado no gamepad.
+- `tests/control-precision.cjs`: 45 verificações aprovadas via Playwright CLI, incluindo posição estável por 120 quadros, direções/diagonais, soltura parcial, disparo sem movimento, multitouch, pausa e perda de foco. Gamepad exercitado com snapshots simulados. Retrato 390×844 e paisagem 844×390 capturados e inspecionados.
+- Regressão `tests/gameplay-refinements.cjs`: 145 verificações aprovadas. `npm run build` e `git diff --check` aprovados; aviso conhecido de tamanho do bundle permanece.
+- Em produção (`vite preview`, sem `window.battle`), a posição gravada ao pausar confirmou movimento por teclado, parada após soltura, ausência de deslocamento ao disparar e cancelamento do impulso ao pausar. Sem exceções JavaScript.
+- Limites: Chromium, toque emulado, sem controle físico ou celular físico. Balanço visual do sprite/câmera não foi confundido com coordenadas do personagem. Correntes e rajadas do cenário ainda podem empurrar o personagem intencionalmente. Saves permanecem v2/revisão de mundo 3.
+
+## Refinamento da vegetação e dos assentamentos — 25/10/2026
+
+- Corrigida a interpretação do atlas: o bloco de vegetação de 3×3 era um conjunto de peças, não uma árvore completa. Ele foi removido de todas as árvores e da Raiz Primordial. As árvores largas usam uma copa única conectada ao tronco (64×80), e os ciprestes preservam o recorte completo (48×96).
+- Arcos recompostos com uma única abertura; colunas mais baixas com base e capitel; farol com sala de luz e cobertura; lanternas âmbar no lugar de peças semelhantes a placas. Menos manchas de flores, cores menos saturadas e transparência de árvores limitada à própria silhueta.
+- `src/settlements.ts` concentra cinco composições de refúgio, suas entradas e os pontos da fogueira. Pátios com cantos chanfrados, acesso pavimentado às portas, árvores/pedras/lagoas recortadas da área de pavimentação e jardim lateral. Santuários menores com mosaico central e degraus. Moradores permanecem na faixa de circulação, com profundidade nos pés; iluminação e sprite de fogueira compartilham a mesma posição.
+- `tests/scenery-visual.cjs` passou novamente: 31 locais, nenhuma textura ausente, hashes de árvores/obstáculos idênticos e 12 chunks de 1024×1024. `tests/scenery-settlements.cjs` não encontrou interseções dos pés de casas, anexos, poços, bancos, placas, jardins, vasos, cercas ou fogueiras com os obstáculos existentes.
+- `tests/scenery-mobile.cjs` passou: retrato/paisagem, controles simultâneos, cancelamento, pausa, mapa e habilidades; capturas abertas e inspecionadas. Produção e HTML autocontido testados com início de partida, movimento/ataque, pausa/retomada e capturas, sem erros JavaScript ou referência de desenvolvimento exposta. `npm run build:standalone` aprovado; permanece o aviso de tamanho do bundle.
+- Limites: inspeção visual por capturas em Chromium e mobile emulado; sem aparelho físico e sem nova avaliação completa de balanceamento. Nenhuma alteração na geometria de colisão ou no formato dos saves.

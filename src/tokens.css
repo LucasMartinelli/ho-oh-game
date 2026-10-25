@@ -27,7 +27,7 @@
  --hp-high:var(--leaf-400);--hp-mid:var(--gold-300);--hp-low:var(--ember-400);--xp:var(--tide-300);
  --type-fire:var(--ember-400);--type-flying:var(--gale-300);--type-sacred:var(--gold-300);
  --region-forest:var(--leaf-400);--region-tide:var(--tide-300);--region-ash:var(--ember-400);--region-sky:var(--gale-300);
- --rainbow:linear-gradient(90deg,var(--ember-400) 0 14.28%,var(--gold-400) 0 28.57%,var(--gold-300) 0 42.85%,var(--leaf-400) 0 57.14%,var(--tide-300) 0 71.42%,var(--tide-500) 0 85.71%,var(--gale-500) 0);
+
  --dither:conic-gradient(rgb(20 13 20/.4) 25%,transparent 0 50%,rgb(20 13 20/.4) 0 75%,transparent 0) 0 0/4px 4px;
 
  /* Typography */

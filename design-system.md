@@ -12,7 +12,7 @@ Ho-Oh vive na Torre do Sino de Ecruteak, a cidade de Johto inspirada em Kyoto. A
 | **Papel** (washi creme + contorno de tinta) | Diálogos, pausa, habilidades, mapa, avisos | Lembra a caixa de texto de Pokémon: tudo que "fala" com o jogador fica em papel. |
 | **Brasa** (vermelho-vermelhão dos torii) | Ação principal, fogo, perigo | A cor do fogo sagrado e dos portões do santuário. |
 | **Ouro** | Lenda, recompensa, seleção, foco | O dourado de Ho-Oh e de HeartGold. |
-| **Arco-íris** (7 faixas duras) | Momentos lendários: tela inicial, vitória | Ho-Oh é o Pokémon arco-íris. Use pouco para que continue especial. |
+| **Arco-íris** | Rastro lendário da Asa Arco-Íris (recompensa das 21 plumas) | Ho-Oh é o Pokémon arco-íris. Fica só no mundo, fora da interface. |
 
 ### Princípios
 
@@ -131,7 +131,7 @@ Toda moldura começa com o **contorno chanfrado**: quatro sombras de 1 pixel de 
 
 - **Sombra**: `--drop` (3 pixels de arte para baixo, ink-950 a 45%) e `--drop-sm`. Nunca use desfoque.
 - **Fundo de menu**: `--scrim` com `--dither` (xadrez de 2 × 2 px). Substitui o `backdrop-filter`, que pesa no celular.
-- **Faixa arco-íris**: `--rainbow`, com 4 px de altura, no topo das superfícies lendárias.
+
 - Painéis roláveis usam `outline` com deslocamento negativo para o filete interno, que fica sobre o conteúdo durante a rolagem.
 
 ## 6. Iconografia

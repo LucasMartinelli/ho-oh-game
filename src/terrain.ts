@@ -18,16 +18,16 @@ class TerrainPattern {
 export class TerrainPainter {
  private tiles:Phaser.Textures.CanvasTexture[]=[];
  private contexts:CanvasRenderingContext2D[]=[];
- private offsets:{x:number;y:number}[]=[];
  private cols=0;
  constructor(scene:Phaser.Scene,width:number,height:number){
   this.cols=Math.ceil(width/TILE_SIZE);
   for(let y=0;y<height;y+=TILE_SIZE)for(let x=0;x<width;x+=TILE_SIZE){
    const key=`terrain-${x}-${y}`,tile=scene.textures.createCanvas(key,TILE_SIZE,TILE_SIZE)!;
+   tile.context.imageSmoothingEnabled=false;
    tile.context.translate(-x,-y);
-   this.tiles.push(tile);this.contexts.push(tile.context);this.offsets.push({x,y});
-   // Overlapping edges hide the 1px seams that fractional camera scroll opens on mobile.
-   scene.add.image(x*2,y*2,key).setOrigin(0).setDisplaySize(TILE_SIZE*2+4,TILE_SIZE*2+4).setDepth(-100);
+   this.tiles.push(tile);this.contexts.push(tile.context);
+   // Exact integer scale keeps source pixels aligned across chunk boundaries.
+   scene.add.image(x*2,y*2,key).setOrigin(0).setDisplaySize(TILE_SIZE*2,TILE_SIZE*2).setDepth(-100);
   }
  }
  set fillStyle(value:string|TerrainGradient|TerrainPattern){
@@ -38,12 +38,8 @@ export class TerrainPainter {
  /** World-anchored repeating pattern built from a loaded texture. */
  pattern(scene:Phaser.Scene,key:string){
   const source=scene.textures.get(key).getSourceImage() as CanvasImageSource;
-  const patterns=this.offsets.map(o=>{
-   const p=this.tiles[0].context.createPattern(source,'repeat')!;
-   // Keep the pattern anchored to painter space despite the per-tile translate.
-   p.setTransform(new DOMMatrix().translate(o.x,o.y));
-   return p;
-  });
+  // Contexts already carry the chunk translation; patterns share world origin.
+  const patterns=this.contexts.map(c=>c.createPattern(source,'repeat')!);
   return new TerrainPattern(patterns);
  }
  /** Blit only into the tiles the destination rect intersects. */
@@ -65,7 +61,7 @@ export class TerrainPainter {
  ellipse(...args:Parameters<CanvasRenderingContext2D['ellipse']>){for(const c of this.contexts)c.ellipse(...args)}
  fill(){for(const c of this.contexts)c.fill()}
  stroke(){for(const c of this.contexts)c.stroke()}
- clip(){for(const c of this.contexts)c.clip()}
+ clip(rule:CanvasFillRule='nonzero'){for(const c of this.contexts)c.clip(rule)}
  fillRect(x:number,y:number,width:number,height:number){for(const c of this.contexts)c.fillRect(x,y,width,height)}
  save(){for(const c of this.contexts)c.save()}
  restore(){for(const c of this.contexts)c.restore()}

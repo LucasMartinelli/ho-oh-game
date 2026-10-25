@@ -42,7 +42,8 @@ export class Encounters {
    if(d>290&&list.includes('dash'))a.pattern='dash';
    if(a.pattern===e.lastPattern)e.patternRun++;else{e.patternRun=0;e.lastPattern=a.pattern}
    if(e.patternRun>=2&&list.length>1){a.pattern=list.find(q=>q!==a.pattern)??a.pattern;e.lastPattern=a.pattern;e.patternRun=0}
-   a.phase='windup';a.time=a.duration=(easy?1.15:.85)*(phase2?.9:1)*(s.assist.telegraph?1.3:1);if(a.pattern==='roots')a.time=a.duration=easy?1.5:1.1;
+   const warningTime=a.pattern==='roots'?(easy?1.5:1.1):(easy?1.15:.85)*(phase2?.9:1);
+   a.phase='windup';a.time=a.duration=warningTime*(s.assist.telegraph?1.3:1);
    e.sprite.setFlipX(Math.cos(a.angle)>0);
    const pan=Phaser.Math.Clamp((e.x-p.x)/400,-1,1);s.audio.play('warn-'+a.pattern,pan);s.tip('telegraph','ATAQUE ANUNCIADO','Áreas marcadas não seguem você: saia do caminho.');
   }

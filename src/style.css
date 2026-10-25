@@ -173,3 +173,14 @@ body:not(.touch-layout) .combat-tip { display:none; }
 #final-boss{color:#f4b28a;font-size:14px}
 #touch-ash,#touch-lugia{min-width:56px}
 #pause-lugia{width:100%}
+
+/* Heat stays next to the firing thumb; static warning also respects reduced motion. */
+#touch-fire .fire-heat-ring { position:absolute; inset:-6px; width:calc(100% + 12px); height:calc(100% + 12px); overflow:visible; pointer-events:none; transform:rotate(-90deg); }
+.fire-heat-ring circle { fill:none; stroke-width:4; }
+.fire-heat-ring .heat-ring-track { stroke:#211c28; }
+.fire-heat-ring .heat-ring-value { stroke:#ffe096; stroke-dasharray:100; stroke-dashoffset:calc(100 - var(--heat,0)); }
+#touch-fire.heat-warning .heat-ring-value { stroke:#ff9b46; stroke-width:6; }
+#touch-fire.overheated .heat-ring-value { stroke:#fff2d1; stroke-width:6; }
+#touch-fire .fire-heat-warning { position:absolute; bottom:calc(100% + 10px); left:50%; transform:translateX(-50%); white-space:nowrap; background:#261d24; color:#ffe096; font-size:9px; line-height:1.5; padding:2px 4px; pointer-events:none; }
+#touch-fire .fire-heat-warning:empty { display:none; }
+.touch-layout .heat-status { display:none; }
